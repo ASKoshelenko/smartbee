@@ -1,3 +1,5 @@
+// src/App.js
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@material-ui/core';
@@ -16,6 +18,13 @@ import PrivateRoute from './components/PrivateRoute';
 import UserDashboard from './pages/UserDashboard';
 import CreateCourse from './components/CreateCourse';
 
+// Import ProtectedRoute
+import ProtectedRoute from './components/ProtectedRoute'; // Make sure this import is present
+
+// Import the new dashboard components
+import AdminDashboard from './pages/AdminDashboard';
+import TutorDashboard from './pages/TutorDashboard';
+import StudentDashboard from './pages/StudentDashboard';
 
 const theme = createTheme({
   breakpoints: {
@@ -49,6 +58,9 @@ function App() {
                   <Route path="/register" component={Register} />
                   <PrivateRoute path="/dashboard" component={UserDashboard} />
                   <Route path="/create-course" component={CreateCourse} />
+                  <ProtectedRoute path="/admin" requiredRole="admin" component={AdminDashboard} />
+                  <ProtectedRoute path="/tutor" requiredRole="tutor" component={TutorDashboard} />
+                  <ProtectedRoute path="/student" requiredRole="student" component={StudentDashboard} />
                 </Switch>
               </main>
               <Footer />
