@@ -58,7 +58,9 @@ function Header() {
               <MenuItem onClick={handleClose} component={Link} to="/contact">Contact</MenuItem>
               {user ? (
                 <>
-                  <MenuItem onClick={handleClose} component={Link} to="/dashboard">Dashboard</MenuItem>
+                  {user.role === 'admin' && <MenuItem onClick={handleClose} component={Link} to="/admin">Admin Dashboard</MenuItem>}
+                  {user.role === 'tutor' && <MenuItem onClick={handleClose} component={Link} to="/tutor">Tutor Dashboard</MenuItem>}
+                  {user.role === 'student' && <MenuItem onClick={handleClose} component={Link} to="/student">Student Dashboard</MenuItem>}
                   <MenuItem onClick={() => { logout(); handleClose(); }}>Logout</MenuItem>
                 </>
               ) : (
@@ -76,7 +78,9 @@ function Header() {
             <Button color="inherit" component={Link} to="/contact">Contact</Button>
             {user ? (
               <>
-                <Button color="inherit" component={Link} to="/dashboard">Dashboard</Button>
+                {user.role === 'admin' && <Button color="inherit" component={Link} to="/admin">Admin Dashboard</Button>}
+                {user.role === 'tutor' && <Button color="inherit" component={Link} to="/tutor">Tutor Dashboard</Button>}
+                {user.role === 'student' && <Button color="inherit" component={Link} to="/student">Student Dashboard</Button>}
                 <Button color="inherit" onClick={logout}>Logout</Button>
               </>
             ) : (

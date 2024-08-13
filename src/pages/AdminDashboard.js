@@ -5,20 +5,30 @@ import { Container, Typography, Table, TableHead, TableRow, TableCell, TableBody
 import { useAuth } from '../contexts/AuthContext';
 
 function AdminDashboard() {
-  const { user, fetchUsers, updateUserRole } = useAuth();
+  const { fetchUsers, updateUserRole } = useAuth(); // Используем необходимые функции из AuthContext
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
     const loadUsers = async () => {
-      const fetchedUsers = await fetchUsers();
-      setUsers(fetchedUsers);
+      try {
+        const fetchedUsers = await fetchUsers();
+        setUsers(fetchedUsers);
+      } catch (error) {
+        console.error('Error loading users:', error);
+      }
     };
 
     loadUsers();
-  }, []);
+  }, [fetchUsers]);
 
-  const handleRoleChange = (userId, newRole) => {
-    updateUserRole(userId, newRole);
+  const handleRoleChange = async (userId, newRole) => {
+    try {
+      await updateUserRole(userId, newRole);
+      // Обновляем состояние после изменения роли
+      setUsers(users.map(user => user._id === userId ? { ...user, role: newRole } : user));
+    } catch (error) {
+      console.error('Error updating user role:', error);
+    }
   };
 
   return (
@@ -36,17 +46,17 @@ function AdminDashboard() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {users.map((u) => (
-            <TableRow key={u._id}>
-              <TableCell>{u.name}</TableCell>
-              <TableCell>{u.email}</TableCell>
-              <TableCell>{u.role}</TableCell>
+          {users.map((user) => (
+            <TableRow key={user._id}>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{user.role}</TableCell>
               <TableCell>
-                {u.role !== 'admin' && (
+                {user.role !== 'admin' && (
                   <>
-                    <Button onClick={() => handleRoleChange(u._id, 'student')}>Make Student</Button>
-                    <Button onClick={() => handleRoleChange(u._id, 'tutor')}>Make Tutor</Button>
-                    <Button onClick={() => handleRoleChange(u._id, 'admin')}>Make Admin</Button>
+                    <Button onClick={() => handleRoleChange(user._id, 'student')}>Make Student</Button>
+                    <Button onClick={() => handleRoleChange(user._id, 'tutor')}>Make Tutor</Button>
+                    <Button onClick={() => handleRoleChange(user._id, 'admin')}>Make Admin</Button>
                   </>
                 )}
               </TableCell>
