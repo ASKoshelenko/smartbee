@@ -1,5 +1,3 @@
-// contexts/CourseContext.js
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 
@@ -10,25 +8,45 @@ const CourseProvider = ({ children }) => {
   const [userProgress, setUserProgress] = useState({});
 
   useEffect(() => {
-    // Получение курсов с API
     const fetchCourses = async () => {
       try {
         const response = await axios.get('http://localhost:5001/api/courses');
         setCourses(response.data);
       } catch (err) {
-        console.error('Ошибка получения курсов:', err);
+        console.error('Error fetching courses:', err);
+      }
+    };
+
+    const fetchUserProgress = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:5001/api/user-progress', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUserProgress(response.data);
+      } catch (err) {
+        console.error('Error fetching user progress:', err);
       }
     };
 
     fetchCourses();
+    fetchUserProgress();
   }, []);
 
-  const updateProgress = (courseId, progress) => {
-    setUserProgress(prev => ({
-      ...prev,
-      [courseId]: { ...prev[courseId], ...progress },
-    }));
-    // TODO: Обновить прогресс на сервере
+  const updateProgress = async (courseId, progress) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post('http://localhost:5001/api/user-progress', 
+        { courseId, progress },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setUserProgress(prev => ({
+        ...prev,
+        [courseId]: progress,
+      }));
+    } catch (err) {
+      console.error('Error updating progress:', err);
+    }
   };
 
   return (
@@ -46,5 +64,4 @@ const useCourses = () => {
   return context;
 };
 
-// Обеспечьте, чтобы эти два элемента экспортировались как именованные
 export { CourseProvider, useCourses };

@@ -1,10 +1,8 @@
-// src/App.js
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { ThemeProvider, createTheme, CssBaseline } from '@material-ui/core';
 import { AuthProvider } from './contexts/AuthContext';
-import { CourseProvider } from './contexts/CourseContext.js';
+import { CourseProvider } from './contexts/CourseContext';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -15,16 +13,12 @@ import Contact from './pages/Contact';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import PrivateRoute from './components/PrivateRoute';
-import UserDashboard from './pages/UserDashboard';
-import CreateCourse from './components/CreateCourse';
-
-// Import ProtectedRoute
-import ProtectedRoute from './components/ProtectedRoute'; // Make sure this import is present
-
-// Import the new dashboard components
+import ProtectedRoute from './components/ProtectedRoute';
 import AdminDashboard from './pages/AdminDashboard';
 import TutorDashboard from './pages/TutorDashboard';
 import StudentDashboard from './pages/StudentDashboard';
+import CourseForm from './components/CourseForm';
+import TutorCourses from './components/TutorCourses';
 
 const theme = createTheme({
   breakpoints: {
@@ -56,10 +50,11 @@ function App() {
                   <Route path="/contact" component={Contact} />
                   <Route path="/login" component={Login} />
                   <Route path="/register" component={Register} />
-                  <PrivateRoute path="/dashboard" component={UserDashboard} />
-                  <Route path="/create-course" component={CreateCourse} />
                   <ProtectedRoute path="/admin" requiredRole="admin" component={AdminDashboard} />
-                  <ProtectedRoute path="/tutor" requiredRole="tutor" component={TutorDashboard} />
+                  <ProtectedRoute exact path="/tutor" requiredRole="tutor" component={TutorDashboard} />
+                  <ProtectedRoute exact path="/tutor/courses" requiredRole="tutor" component={TutorCourses} />
+                  <ProtectedRoute path="/tutor/courses/new" requiredRole="tutor" component={CourseForm} />
+                  <ProtectedRoute path="/tutor/courses/edit/:id" requiredRole="tutor" component={CourseForm} />
                   <ProtectedRoute path="/student" requiredRole="student" component={StudentDashboard} />
                 </Switch>
               </main>
