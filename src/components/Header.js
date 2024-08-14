@@ -13,8 +13,24 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   link: {
-    color: 'white',
+    color: theme.palette.primary.main, // Желтый текст
     textDecoration: 'none',
+    '&:hover': {
+      color: theme.palette.primary.light,
+    },
+  },
+  logo: {
+    height: 40,
+    marginRight: theme.spacing(2),
+  },
+  appBar: {
+    backgroundColor: theme.palette.secondary.main, // Черный фон
+  },
+  button: {
+    color: theme.palette.primary.main, // Желтый текст для кнопок
+    '&:hover': {
+      backgroundColor: 'rgba(255, 193, 7, 0.1)', // Полупрозрачный желтый при наведении
+    },
   },
 }));
 
@@ -34,8 +50,9 @@ function Header() {
   };
 
   return (
-    <AppBar position="static">
+    <AppBar position="static" className={classes.appBar}>
       <Toolbar>
+        <img src="/assets/icons/android-chrome-192x192.png" alt="SmartBee Logo" className={classes.logo} />
         <Typography variant="h6" className={classes.title}>
           <Link to="/" className={classes.link}>
             SmartBee
@@ -73,20 +90,20 @@ function Header() {
           </>
         ) : (
           <>
-            <Button color="inherit" component={Link} to="/courses">Courses</Button>
-            <Button color="inherit" component={Link} to="/about">About</Button>
-            <Button color="inherit" component={Link} to="/contact">Contact</Button>
+            <Button className={classes.button} component={Link} to="/courses">Courses</Button>
+            <Button className={classes.button} component={Link} to="/about">About</Button>
+            <Button className={classes.button} component={Link} to="/contact">Contact</Button>
             {user ? (
               <>
-                {user.role === 'admin' && <Button color="inherit" component={Link} to="/admin">Admin Dashboard</Button>}
-                {user.role === 'tutor' && <Button color="inherit" component={Link} to="/tutor">Tutor Dashboard</Button>}
-                {user.role === 'student' && <Button color="inherit" component={Link} to="/student">Student Dashboard</Button>}
-                <Button color="inherit" onClick={logout}>Logout</Button>
+              {user.role === 'admin' && <Button className={classes.button} component={Link} to="/admin">Admin Dashboard</Button>}
+              {user.role === 'tutor' && <Button className={classes.button} component={Link} to="/tutor">Tutor Dashboard</Button>}
+              {user.role === 'student' && <Button className={classes.button} component={Link} to="/student">Student Dashboard</Button>}
+              <Button className={classes.button} onClick={logout}>Logout</Button>
               </>
             ) : (
               <>
-                <Button color="inherit" component={Link} to="/login">Login</Button>
-                <Button color="inherit" component={Link} to="/register">Register</Button>
+                <Button className={classes.button} component={Link} to="/login">Login</Button>
+                <Button className={classes.button} component={Link} to="/register">Register</Button>
               </>
             )}
           </>

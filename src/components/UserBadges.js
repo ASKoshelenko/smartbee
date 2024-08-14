@@ -1,18 +1,18 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import { Typography, Grid, Tooltip } from '@material-ui/core';
-import { Star as StarIcon } from '@material-ui/icons';
+import { Typography, Grid, Tooltip, Avatar } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
-  badgeIcon: {
-    fontSize: 40,
-    color: theme.palette.secondary.main,
-  },
   badgeItem: {
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     margin: theme.spacing(1),
+  },
+  avatar: {
+    width: theme.spacing(7),
+    height: theme.spacing(7),
+    marginBottom: theme.spacing(1),
   },
 }));
 
@@ -31,7 +31,11 @@ function UserBadges({ badges }) {
       {badges.map((badge, index) => (
         <Tooltip key={index} title={badgeDescriptions[badge] || badge}>
           <div className={classes.badgeItem}>
-            <StarIcon className={classes.badgeIcon} />
+            <Avatar 
+              src={`/assets/images/pic-${(index % 6) + 2}.jpg`} 
+              alt={badge} 
+              className={classes.avatar}
+            />
             <Typography variant="caption">{badge}</Typography>
           </div>
         </Tooltip>
