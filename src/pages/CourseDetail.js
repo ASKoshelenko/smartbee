@@ -1,48 +1,51 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { 
   Typography, Container, Card, CardContent, CardMedia, 
-  Button, Accordion, AccordionSummary, AccordionDetails,
-  List, ListItem, ListItemText, ListItemIcon, Dialog,
-  DialogTitle, DialogContent, DialogActions
+  Accordion, AccordionSummary, AccordionDetails,
+  List, ListItem, CircularProgress, TextField, Button
 } from '@material-ui/core';
-import { ExpandMore as ExpandMoreIcon, PlayCircleOutline as VideoIcon, Image as ImageIcon } from '@material-ui/icons';
+import Rating from '@material-ui/lab/Rating';
+import { ExpandMore as ExpandMoreIcon } from '@material-ui/icons';
 import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import { useCourses } from '../contexts/CourseContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useGame } from '../contexts/GameContext';
+import UserProgress from '../components/UserProgress';
+import Lesson from '../components/Lesson';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  container: {
     marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(4),
   },
   media: {
     height: 0,
     paddingTop: '56.25%', // 16:9
   },
   sectionHeader: {
-    backgroundColor: '#4caf50',
-    color: 'white',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
   },
   lessonItem: {
-    backgroundColor: '#fff9c4',
+    backgroundColor: theme.palette.background.paper,
     margin: theme.spacing(1, 0),
     cursor: 'pointer',
     '&:hover': {
-      backgroundColor: '#fff59d',
+      backgroundColor: theme.palette.action.hover,
     },
   },
-  icon: {
-    marginRight: theme.spacing(1),
-  },
-  progressBar: {
-    height: 10,
-    borderRadius: 5,
+  progressContainer: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
   },
-  progressText: {
-    marginTop: theme.spacing(1),
-    textAlign: 'center',
+  progress: {
+    height: 10,
+    borderRadius: 5,
+  },
+  icon: {
+    marginRight: theme.spacing(1),
   },
   dialogContent: {
     padding: theme.spacing(2),
@@ -51,88 +54,89 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: '100%',
     height: 'auto',
   },
+  reviewSection: {
+    marginTop: theme.spacing(4),
+  },
+  reviewItem: {
+    marginBottom: theme.spacing(2),
+  },
+  reviewForm: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: theme.spacing(2),
+  },
 }));
 
 function CourseDetail() {
   const classes = useStyles();
   const { id } = useParams();
-  const history = useHistory();
   const { userProgress, updateProgress } = useCourses();
+  const { user } = useAuth();
+  const { updateExperience, awardBadge } = useGame();
   const [course, setCourse] = useState(null);
-  const [selectedLesson, setSelectedLesson] = useState(null);
-  const [openDialog, setOpenDialog] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [reviews, setReviews] = useState([]);
+  const [newReview, setNewReview] = useState({ rating: 0, comment: '' });
 
   useEffect(() => {
-    const fetchCourse = async () => {
+    const fetchCourseAndReviews = async () => {
       try {
-        const response = await axios.get(`http://localhost:5001/api/courses/${id}`);
-        setCourse(response.data);
+        const courseResponse = await axios.get(`http://localhost:5001/api/courses/${id}`);
+        setCourse(courseResponse.data);
+        const reviewsResponse = await axios.get(`http://localhost:5001/api/courses/${id}/reviews`);
+        setReviews(reviewsResponse.data);
+        setLoading(false);
       } catch (err) {
-        console.error('Error fetching course:', err);
+        console.error('Error fetching course or reviews:', err);
+        setError('Failed to load course details. Please try again later.');
+        setLoading(false);
       }
     };
 
-    fetchCourse();
+    fetchCourseAndReviews();
   }, [id]);
 
-  if (!course) {
-    return <Typography variant="h5">Loading course...</Typography>;
-  }
-
-  const progress = userProgress[course._id] || { completed: false, quizScore: null, completion: 0, lastLesson: null };
-
-  const handleStartCourse = () => {
-    const firstSection = course.sections[0];
-    const firstLesson = firstSection.lessons[0];
-    updateProgress(course._id, { ...progress, completion: 0, lastLesson: { sectionIndex: 0, lessonIndex: 0 } });
-    openLessonDialog(firstLesson, 0, 0);
-  };
-
-  const handleContinueLearning = () => {
-    if (progress.lastLesson) {
-      const { sectionIndex, lessonIndex } = progress.lastLesson;
-      const lesson = course.sections[sectionIndex].lessons[lessonIndex];
-      openLessonDialog(lesson, sectionIndex, lessonIndex);
-    } else {
-      handleStartCourse();
+  const handleAddReview = async () => {
+    try {
+      const response = await axios.post(`http://localhost:5001/api/courses/${id}/reviews`, newReview, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      setReviews([...reviews, response.data]);
+      setNewReview({ rating: 0, comment: '' });
+    } catch (error) {
+      console.error('Error adding review:', error);
     }
   };
 
-  const openLessonDialog = (lesson, sectionIndex, lessonIndex) => {
-    setSelectedLesson(lesson);
-    setOpenDialog(true);
-    updateProgress(course._id, { 
+  const handleLessonComplete = async (sectionIndex, lessonIndex) => {
+    const progress = userProgress[course._id] || { completed: false, completion: 0 };
+    const totalLessons = course.sections.reduce((total, section) => total + section.lessons.length, 0);
+    const completedLessons = progress.completion / 100 * totalLessons + 1;
+    const newCompletion = (completedLessons / totalLessons) * 100;
+
+    await updateProgress(course._id, { 
       ...progress, 
-      lastLesson: { sectionIndex, lessonIndex },
-      completion: ((sectionIndex * 100 / course.sections.length) + (lessonIndex * 100 / course.sections[sectionIndex].lessons.length) / course.sections.length)
+      completion: newCompletion,
+      lastLesson: { sectionIndex, lessonIndex }
     });
-  };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
+    await updateExperience(10); // Предположим, что за каждый урок дается 10 XP
 
-  const handleNextLesson = () => {
-    const { sectionIndex, lessonIndex } = progress.lastLesson;
-    let nextSectionIndex = sectionIndex;
-    let nextLessonIndex = lessonIndex + 1;
-
-    if (nextLessonIndex >= course.sections[sectionIndex].lessons.length) {
-      nextSectionIndex++;
-      nextLessonIndex = 0;
-    }
-
-    if (nextSectionIndex < course.sections.length) {
-      const nextLesson = course.sections[nextSectionIndex].lessons[nextLessonIndex];
-      openLessonDialog(nextLesson, nextSectionIndex, nextLessonIndex);
-    } else {
-      handleCloseDialog();
-      updateProgress(course._id, { ...progress, completed: true, completion: 100 });
+    if (newCompletion === 100) {
+      await awardBadge('course_complete');
     }
   };
+
+  if (loading) return <CircularProgress />;
+  if (error) return <Typography color="error">{error}</Typography>;
+  if (!course) return <Typography>Course not found</Typography>;
+
+  const progress = userProgress[course._id] || { completed: false, completion: 0 };
 
   return (
-    <Container maxWidth="md" className={classes.root}>
+    <Container maxWidth="md" className={classes.container}>
+      <UserProgress />
       <Card>
         <CardMedia
           className={classes.media}
@@ -140,38 +144,31 @@ function CourseDetail() {
           title={course.title}
         />
         <CardContent>
-          <Typography gutterBottom variant="h3" component="div">
+          <Typography gutterBottom variant="h3" component="h1">
             {course.title}
           </Typography>
           <Typography variant="body1" color="textSecondary" paragraph>
             {course.description}
           </Typography>
-          <div className={classes.progressBar}>
-            <div
-              style={{
-                width: `${progress.completion}%`,
-                height: '100%',
-                backgroundColor: '#4caf50',
-                borderRadius: 5,
-              }}
-            />
+          <div className={classes.progressContainer}>
+            <Typography variant="body2" color="textSecondary">
+              Course Progress: {Math.round(progress.completion)}%
+            </Typography>
+            <div className={classes.progress}>
+              <div
+                style={{
+                  width: `${progress.completion}%`,
+                  height: '100%',
+                  backgroundColor: '#4caf50',
+                  borderRadius: 5,
+                }}
+              />
+            </div>
           </div>
-          <Typography variant="body2" color="textSecondary" className={classes.progressText}>
-            {`${Math.round(progress.completion)}% Complete`}
-          </Typography>
-          {progress.completion > 0 ? (
-            <Button variant="contained" color="primary" onClick={handleContinueLearning}>
-              Continue Learning
-            </Button>
-          ) : (
-            <Button variant="contained" color="primary" onClick={handleStartCourse}>
-              Start Course
-            </Button>
-          )}
         </CardContent>
       </Card>
 
-      {course.sections && course.sections.map((section, sectionIndex) => (
+      {course.sections.map((section, sectionIndex) => (
         <Accordion key={sectionIndex}>
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -181,20 +178,11 @@ function CourseDetail() {
           </AccordionSummary>
           <AccordionDetails>
             <List>
-              {section.lessons && section.lessons.map((lesson, lessonIndex) => (
-                <ListItem 
-                  key={lessonIndex} 
-                  className={classes.lessonItem}
-                  onClick={() => openLessonDialog(lesson, sectionIndex, lessonIndex)}
-                >
-                  <ListItemText 
-                    primary={lesson.title} 
-                    secondary={
-                      <React.Fragment>
-                        {lesson.videoUrl && <VideoIcon className={classes.icon} />}
-                        {lesson.imageUrls && lesson.imageUrls.length > 0 && <ImageIcon className={classes.icon} />}
-                      </React.Fragment>
-                    }
+              {section.lessons.map((lesson, lessonIndex) => (
+                <ListItem key={lessonIndex}>
+                  <Lesson 
+                    lesson={lesson} 
+                    onComplete={() => handleLessonComplete(sectionIndex, lessonIndex)}
                   />
                 </ListItem>
               ))}
@@ -203,29 +191,45 @@ function CourseDetail() {
         </Accordion>
       ))}
 
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="md" fullWidth>
-        <DialogTitle>{selectedLesson?.title}</DialogTitle>
-        <DialogContent className={classes.dialogContent}>
-          {selectedLesson?.videoUrl && (
-            <video controls className={classes.mediaContent}>
-              <source src={selectedLesson.videoUrl} type="video/mp4" />
-              Your browser does not support the video tag.
-            </video>
-          )}
-          {selectedLesson?.imageUrls && selectedLesson.imageUrls.map((imageUrl, index) => (
-            <img key={index} src={imageUrl} alt={`Lesson image ${index + 1}`} className={classes.mediaContent} />
-          ))}
-          <Typography variant="body1">{selectedLesson?.content}</Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="primary">
-            Close
-          </Button>
-          <Button onClick={handleNextLesson} color="primary">
-            Next Lesson
-          </Button>
-        </DialogActions>
-      </Dialog>
+      <div className={classes.reviewSection}>
+        <Typography variant="h4" gutterBottom>Reviews</Typography>
+        {reviews.map((review, index) => (
+          <Card key={index} className={classes.reviewItem}>
+            <CardContent>
+              <Typography variant="h6">{review.user.name}</Typography>
+              <Rating value={review.rating} readOnly />
+              <Typography variant="body1">{review.comment}</Typography>
+            </CardContent>
+          </Card>
+        ))}
+        {user && (
+          <Card>
+            <CardContent>
+              <Typography variant="h6">Add Your Review</Typography>
+              <form className={classes.reviewForm} onSubmit={(e) => { e.preventDefault(); handleAddReview(); }}>
+                <Rating
+                  name="rating"
+                  value={newReview.rating}
+                  onChange={(event, newValue) => {
+                    setNewReview({ ...newReview, rating: newValue });
+                  }}
+                />
+                <TextField
+                  label="Your comment"
+                  multiline
+                  rows={4}
+                  variant="outlined"
+                  value={newReview.comment}
+                  onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                />
+                <Button type="submit" variant="contained" color="primary">
+                  Submit Review
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </Container>
   );
 }
