@@ -1,14 +1,12 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../config';
 
 const CourseContext = createContext();
 
-const API_BASE_URL = 'http://localhost:5001/api';
-
 const sendAuthorizedRequest = async (method, url, data = null) => {
   const token = localStorage.getItem('token');
-  console.log('Using token for request:', token);
   if (!token) {
     throw new Error('No authentication token found');
   }
@@ -19,47 +17,43 @@ const sendAuthorizedRequest = async (method, url, data = null) => {
       data,
       headers: { Authorization: `Bearer ${token}` }
     });
-    console.log('Authorized request response:', response.data);
+    console.log(`Response for ${url}:`, response.data);
     return response.data;
   } catch (error) {
-    console.error('Authorized request error:', error.response?.data || error.message);
-    if (error.response && error.response.status === 401) {
-      localStorage.removeItem('token');
-      window.location.href = '/login';
-    }
+    console.error(`Error in request to ${url}:`, error);
     throw error;
   }
 };
 
-const CourseProvider = ({ children }) => {
+export const CourseProvider = ({ children }) => {
   const [courses, setCourses] = useState([]);
   const [userProgress, setUserProgress] = useState({});
   const { user } = useAuth();
 
   useEffect(() => {
-    const fetchCourses = async () => {
-      try {
-        const data = await sendAuthorizedRequest('get', '/courses');
-        setCourses(data);
-      } catch (err) {
-        console.error('Error fetching courses:', err);
-      }
-    };
-
-    const fetchUserProgress = async () => {
-      try {
-        const data = await sendAuthorizedRequest('get', '/user-progress');
-        setUserProgress(data);
-      } catch (err) {
-        console.error('Error fetching user progress:', err);
-      }
-    };
-
     if (user) {
       fetchCourses();
       fetchUserProgress();
     }
   }, [user]);
+
+  const fetchCourses = async () => {
+    try {
+      const data = await sendAuthorizedRequest('get', '/courses');
+      setCourses(data);
+    } catch (error) {
+      console.error('Error fetching courses:', error);
+    }
+  };
+
+  const fetchUserProgress = async () => {
+    try {
+      const data = await sendAuthorizedRequest('get', '/user-progress');
+      setUserProgress(data);
+    } catch (error) {
+      console.error('Error fetching user progress:', error);
+    }
+  };
 
   const updateProgress = async (courseId, progress) => {
     try {
@@ -68,8 +62,8 @@ const CourseProvider = ({ children }) => {
         ...prev,
         [courseId]: progress,
       }));
-    } catch (err) {
-      console.error('Error updating progress:', err);
+    } catch (error) {
+      console.error('Error updating progress:', error);
     }
   };
 
@@ -80,12 +74,10 @@ const CourseProvider = ({ children }) => {
   );
 };
 
-const useCourses = () => {
+export const useCourses = () => {
   const context = useContext(CourseContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useCourses must be used within a CourseProvider');
   }
   return context;
 };
-
-export { CourseProvider, useCourses };

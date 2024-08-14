@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, useMediaQuery } from '@material-ui/core';
 import { Menu as MenuIcon } from '@material-ui/icons';
@@ -42,7 +42,7 @@ function Header() {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const { user, logout } = useAuth();
 
   const handleClick = (event) => {
@@ -51,6 +51,19 @@ function Header() {
 
   const handleClose = () => {
     setAnchorEl(null);
+  };
+
+  const getDashboardLink = () => {
+    switch(user?.role) {
+      case 'admin':
+        return '/admin';
+      case 'tutor':
+        return '/tutor';
+      case 'student':
+        return '/student';
+      default:
+        return '/';
+    }
   };
 
   return (
@@ -84,9 +97,8 @@ function Header() {
               <MenuItem onClick={handleClose} component={Link} to="/contact">Contact</MenuItem>
               {user ? (
                 <>
-                  {user.role === 'admin' && <MenuItem onClick={handleClose} component={Link} to="/admin">Admin Dashboard</MenuItem>}
-                  {user.role === 'tutor' && <MenuItem onClick={handleClose} component={Link} to="/tutor">Tutor Dashboard</MenuItem>}
-                  {user.role === 'student' && <MenuItem onClick={handleClose} component={Link} to="/student">Student Dashboard</MenuItem>}
+                  <MenuItem onClick={handleClose} component={Link} to="/profile">Profile</MenuItem>
+                  <MenuItem onClick={handleClose} component={Link} to={getDashboardLink()}>Dashboard</MenuItem>
                   <MenuItem onClick={() => { logout(); handleClose(); }}>Logout</MenuItem>
                 </>
               ) : (
@@ -104,9 +116,8 @@ function Header() {
             <Button className={classes.button} component={Link} to="/contact">Contact</Button>
             {user ? (
               <>
-                {user.role === 'admin' && <Button className={classes.button} component={Link} to="/admin">Admin Dashboard</Button>}
-                {user.role === 'tutor' && <Button className={classes.button} component={Link} to="/tutor">Tutor Dashboard</Button>}
-                {user.role === 'student' && <Button className={classes.button} component={Link} to="/student">Student Dashboard</Button>}
+                <Button className={classes.button} component={Link} to="/profile">Profile</Button>
+                <Button className={classes.button} component={Link} to={getDashboardLink()}>Dashboard</Button>
                 <Button className={classes.button} onClick={logout}>Logout</Button>
               </>
             ) : (

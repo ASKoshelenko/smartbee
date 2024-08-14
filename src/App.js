@@ -17,8 +17,10 @@ import Contact from './pages/Contact';
 import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import PrivateRoute from './components/PrivateRoute';
-import UserDashboard from './pages/UserDashboard';
-import InstructorDashboard from './pages/InstructorDashboard';
+import Profile from './components/Profile';
+import AdminDashboard from './pages/AdminDashboard';
+import TutorDashboard from './pages/TutorDashboard';
+import StudentDashboard from './pages/StudentDashboard';
 
 function App() {
   return (
@@ -44,7 +46,7 @@ function App() {
                       flexGrow: 1, 
                       py: 8, 
                       px: 2,
-                      mt: '64px', // учитывая высоту Header
+                      mt: '64px', 
                     }}
                   >
                     <Switch>
@@ -55,8 +57,10 @@ function App() {
                       <Route path="/contact" component={Contact} />
                       <Route path="/login" component={Login} />
                       <Route path="/register" component={Register} />
-                      <PrivateRoute path="/dashboard" component={UserDashboard} />
-                      <PrivateRoute path="/instructor" component={InstructorDashboard} />
+                      <PrivateRoute path="/profile" component={Profile} />
+                      <PrivateRoute path="/admin" component={AdminDashboard} />
+                      <PrivateRoute path="/tutor" component={TutorDashboard} />
+                      <PrivateRoute path="/student" component={StudentDashboard} />
                     </Switch>
                   </Container>
                   <Footer />
