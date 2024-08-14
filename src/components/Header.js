@@ -6,35 +6,43 @@ import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { useAuth } from '../contexts/AuthContext';
 
 const useStyles = makeStyles((theme) => ({
+  appBar: {
+    background: 'linear-gradient(45deg, #FFC107 30%, #FF9800 90%)',
+    boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+  },
   menuButton: {
     marginRight: theme.spacing(2),
   },
   title: {
     flexGrow: 1,
+    fontFamily: 'Poppins, sans-serif',
+    fontWeight: 700,
+    color: theme.palette.primary.contrastText,
+    textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
   },
   link: {
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
     textDecoration: 'none',
     '&:hover': {
-      color: theme.palette.primary.light,
+      color: theme.palette.secondary.main,
+    },
+  },
+  button: {
+    marginLeft: theme.spacing(2),
+    borderRadius: 25,
+    textTransform: 'none',
+    fontWeight: 600,
+    color: theme.palette.primary.contrastText,
+    transition: 'all 0.3s',
+    '&:hover': {
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      transform: 'translateY(-2px)',
     },
   },
   logo: {
-    height: 40,
+    height: 45,
     marginRight: theme.spacing(2),
-  },
-  appBar: {
-    backgroundColor: theme.palette.secondary.main,
-  },
-  button: {
-    color: theme.palette.primary.main,
-    '&:hover': {
-      backgroundColor: 'rgba(255, 193, 7, 0.1)',
-    },
-  },
-  greeting: {
-    color: theme.palette.primary.main,
-    marginRight: theme.spacing(2),
+    filter: 'drop-shadow(2px 2px 2px rgba(0,0,0,0.2))',
   },
 }));
 
@@ -69,17 +77,12 @@ function Header() {
   return (
     <AppBar position="static" className={classes.appBar}>
       <Toolbar>
-        <img src="/assets/icons/android-chrome-192x192.png" alt="SmartBee Logo" className={classes.logo} />
+        <img src="/assets/icons/bee-logo.png" alt="SmartBee Logo" className={classes.logo} />
         <Typography variant="h6" className={classes.title}>
           <Link to="/" className={classes.link}>
             SmartBee
           </Link>
         </Typography>
-        {user && (
-          <Typography variant="subtitle1" className={classes.greeting}>
-            Привет, {user.name}!
-          </Typography>
-        )}
         {isMobile ? (
           <>
             <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={handleClick}>

@@ -6,13 +6,17 @@ const theme = createTheme({
       main: '#FFC107',
       light: '#FFE082',
       dark: '#FFA000',
+      contrastText: '#212121',
     },
     secondary: {
       main: '#212121',
+      light: '#484848',
+      dark: '#000000',
+      contrastText: '#FFFFFF',
     },
     background: {
-      default: '#FFFFFF',
-      paper: '#F5F5F5',
+      default: '#FFFDE7',
+      paper: '#FFFFFF',
     },
     text: {
       primary: '#212121',
@@ -21,6 +25,7 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: [
+      'Poppins',
       'Roboto',
       'Arial',
       'sans-serif',
@@ -37,21 +42,35 @@ const theme = createTheme({
       fontWeight: 600,
       fontSize: '1.75rem',
     },
+    h4: {
+      fontWeight: 600,
+      fontSize: '1.5rem',
+    },
+    h5: {
+      fontWeight: 600,
+      fontSize: '1.25rem',
+    },
+    h6: {
+      fontWeight: 600,
+      fontSize: '1rem',
+    },
+  },
+  shape: {
+    borderRadius: 8,
   },
   overrides: {
     MuiButton: {
       root: {
-        borderRadius: 30,
+        borderRadius: 25,
         textTransform: 'none',
         fontWeight: 600,
         transition: 'all 0.3s ease-in-out',
         '&:hover': {
-          transform: 'scale(1.05)',
+          transform: 'translateY(-3px)',
           boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         },
       },
       containedPrimary: {
-        color: '#212121', // Черный текст на желтой кнопке
         background: 'linear-gradient(45deg, #FFC107 30%, #FFE082 90%)',
         '&:hover': {
           background: 'linear-gradient(45deg, #FFD54F 30%, #FFF176 90%)',
@@ -60,18 +79,18 @@ const theme = createTheme({
     },
     MuiCard: {
       root: {
+        overflow: 'visible',
         borderRadius: 15,
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
         transition: 'all 0.3s ease-in-out',
         '&:hover': {
           transform: 'translateY(-5px)',
-          boxShadow: '0 8px 12px rgba(0, 0, 0, 0.15)',
+          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
         },
       },
     },
-    MuiAppBar: {
-      colorPrimary: {
-        background: 'linear-gradient(45deg, #212121 30%, #424242 90%)',
+    MuiPaper: {
+      rounded: {
+        borderRadius: 15,
       },
     },
   },
