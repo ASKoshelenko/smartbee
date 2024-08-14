@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { CssBaseline, Container } from '@material-ui/core';
+import { CssBaseline, Container, Box } from '@material-ui/core';
 import theme from './theme';
 import { AuthProvider } from './contexts/AuthContext';
 import { CourseProvider } from './contexts/CourseContext';
@@ -29,25 +29,38 @@ function App() {
           <CourseProvider>
             <GameProvider>
               <Router>
-                <div className="App">
+                <Box 
+                  className="App" 
+                  display="flex" 
+                  flexDirection="column" 
+                  minHeight="100vh"
+                  bgcolor="background.default"
+                >
                   <Header />
-                  <Container maxWidth="lg" style={{ padding: '0 16px' }}>
-                    <main style={{ marginTop: '64px', marginBottom: '64px' }}>
-                      <Switch>
-                        <Route exact path="/" component={Home} />
-                        <Route path="/courses" component={Courses} />
-                        <PrivateRoute path="/course/:id" component={CourseDetail} />
-                        <Route path="/about" component={About} />
-                        <Route path="/contact" component={Contact} />
-                        <Route path="/login" component={Login} />
-                        <Route path="/register" component={Register} />
-                        <PrivateRoute path="/dashboard" component={UserDashboard} />
-                        <PrivateRoute path="/instructor" component={InstructorDashboard} />
-                      </Switch>
-                    </main>
+                  <Container 
+                    maxWidth="lg" 
+                    component="main" 
+                    sx={{ 
+                      flexGrow: 1, 
+                      py: 8, 
+                      px: 2,
+                      mt: '64px', // учитывая высоту Header
+                    }}
+                  >
+                    <Switch>
+                      <Route exact path="/" component={Home} />
+                      <Route path="/courses" component={Courses} />
+                      <PrivateRoute path="/course/:id" component={CourseDetail} />
+                      <Route path="/about" component={About} />
+                      <Route path="/contact" component={Contact} />
+                      <Route path="/login" component={Login} />
+                      <Route path="/register" component={Register} />
+                      <PrivateRoute path="/dashboard" component={UserDashboard} />
+                      <PrivateRoute path="/instructor" component={InstructorDashboard} />
+                    </Switch>
                   </Container>
                   <Footer />
-                </div>
+                </Box>
               </Router>
             </GameProvider>
           </CourseProvider>

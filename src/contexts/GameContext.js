@@ -1,8 +1,8 @@
-// GameContext.js
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { useAuth } from './AuthContext';
 import { useNotification } from './NotificationContext';
+import { API_BASE_URL } from '../config';
 
 const GameContext = createContext();
 
@@ -17,9 +17,9 @@ export const GameProvider = ({ children }) => {
   const { showNotification } = useNotification();
 
   const fetchUserStats = useCallback(async () => {
-    if (!user) return; // Проверка на наличие пользователя
+    if (!user) return;
     try {
-      const response = await axios.get('/api/user-stats', {
+      const response = await axios.get(`${API_BASE_URL}/user-stats`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setUserStats(response.data);
@@ -30,13 +30,15 @@ export const GameProvider = ({ children }) => {
   }, [user, showNotification]);
 
   useEffect(() => {
-    fetchUserStats();
-  }, [fetchUserStats]);
+    if (user) {
+      fetchUserStats();
+    }
+  }, [user, fetchUserStats]);
 
   const updateExperience = async (amount) => {
-    if (!user) return; // Проверка на наличие пользователя
+    if (!user) return;
     try {
-      const response = await axios.post('/api/user-stats/experience', { amount }, {
+      const response = await axios.post(`${API_BASE_URL}/user-stats/experience`, { amount }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setUserStats(response.data);
@@ -50,9 +52,9 @@ export const GameProvider = ({ children }) => {
   };
 
   const awardBadge = async (badgeId) => {
-    if (!user) return; // Проверка на наличие пользователя
+    if (!user) return;
     try {
-      const response = await axios.post('/api/user-stats/badge', { badgeId }, {
+      const response = await axios.post(`${API_BASE_URL}/user-stats/badge`, { badgeId }, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
       });
       setUserStats(response.data);

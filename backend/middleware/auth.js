@@ -16,6 +16,7 @@ const auth = (requiredRole) => (req, res, next) => {
 
     next();
   } catch (error) {
+    console.error('Token verification failed:', error);
     res.status(401).json({ message: 'Token is not valid' });
   }
 };

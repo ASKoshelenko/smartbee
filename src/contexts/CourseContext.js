@@ -1,17 +1,46 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from './AuthContext';
 
 const CourseContext = createContext();
+
+const API_BASE_URL = 'http://localhost:5001/api';
+
+const sendAuthorizedRequest = async (method, url, data = null) => {
+  const token = localStorage.getItem('token');
+  console.log('Using token for request:', token);
+  if (!token) {
+    throw new Error('No authentication token found');
+  }
+  try {
+    const response = await axios({
+      method,
+      url: `${API_BASE_URL}${url}`,
+      data,
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    console.log('Authorized request response:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Authorized request error:', error.response?.data || error.message);
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token');
+      window.location.href = '/login';
+    }
+    throw error;
+  }
+};
 
 const CourseProvider = ({ children }) => {
   const [courses, setCourses] = useState([]);
   const [userProgress, setUserProgress] = useState({});
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await axios.get('http://localhost:5001/api/courses');
-        setCourses(response.data);
+        const data = await sendAuthorizedRequest('get', '/courses');
+        setCourses(data);
       } catch (err) {
         console.error('Error fetching courses:', err);
       }
@@ -19,27 +48,22 @@ const CourseProvider = ({ children }) => {
 
     const fetchUserProgress = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:5001/api/user-progress', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setUserProgress(response.data);
+        const data = await sendAuthorizedRequest('get', '/user-progress');
+        setUserProgress(data);
       } catch (err) {
         console.error('Error fetching user progress:', err);
       }
     };
 
-    fetchCourses();
-    fetchUserProgress();
-  }, []);
+    if (user) {
+      fetchCourses();
+      fetchUserProgress();
+    }
+  }, [user]);
 
   const updateProgress = async (courseId, progress) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('http://localhost:5001/api/user-progress', 
-        { courseId, progress },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await sendAuthorizedRequest('post', '/user-progress', { courseId, progress });
       setUserProgress(prev => ({
         ...prev,
         [courseId]: progress,

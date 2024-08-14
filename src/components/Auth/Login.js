@@ -1,15 +1,25 @@
 import React, { useState } from 'react';
 import { TextField, Button, Typography, Container, Paper } from '@material-ui/core';
 import { useAuth } from '../../contexts/AuthContext';
+import { useHistory } from 'react-router-dom';
+import { useNotification } from '../../contexts/NotificationContext';
 
 function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { login } = useAuth();
+  const history = useHistory();
+  const { showNotification } = useNotification();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    login(email, password);
+    try {
+      await login(email, password);
+      showNotification('Успешный вход в систему', 'success');
+      history.push('/dashboard');
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
   };
 
   return (

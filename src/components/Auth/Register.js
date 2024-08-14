@@ -1,17 +1,27 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Container, Paper } from '@material-ui/core';
+import { TextField, Button, Typography, Container, Paper, Select, MenuItem, FormControl, InputLabel } from '@material-ui/core';
 import { useAuth } from '../../contexts/AuthContext';
+import { useHistory } from 'react-router-dom';
+import { useNotification } from '../../contexts/NotificationContext';
 
 function Register() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('student'); // Default role
+  const [role, setRole] = useState('student');
   const { register } = useAuth();
+  const history = useHistory();
+  const { showNotification } = useNotification();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    register(name, email, password, role);
+    try {
+      await register(name, email, password, role);
+      showNotification('Регистрация успешна. Пожалуйста, войдите в систему.', 'success');
+      history.push('/login');
+    } catch (error) {
+      showNotification(error.message, 'error');
+    }
   };
 
   return (
@@ -59,6 +69,19 @@ function Register() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
+          <FormControl fullWidth variant="outlined" margin="normal">
+            <InputLabel id="role-label">Role</InputLabel>
+            <Select
+              labelId="role-label"
+              id="role"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              label="Role"
+            >
+              <MenuItem value="student">Student</MenuItem>
+              <MenuItem value="tutor">Tutor</MenuItem>
+            </Select>
+          </FormControl>
           <Button
             type="submit"
             fullWidth

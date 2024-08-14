@@ -1,6 +1,9 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext(null);
+
+const API_BASE_URL = 'http://localhost:5001/api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -8,55 +11,43 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
-      setUser(JSON.parse(storedUser));
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Error parsing stored user:', error);
+        localStorage.removeItem('user');
+      }
     }
   }, []);
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5001/api/users/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-
-      if (response.ok) {
-        const { token } = data;
-        localStorage.setItem('token', token);
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ email, role: payload.role });
-        localStorage.setItem('user', JSON.stringify({ email, role: payload.role }));
-      } else {
-        alert(data.message);
+      console.log('Attempting login with:', email);
+      const response = await axios.post(`${API_BASE_URL}/users/login`, { email, password });
+      console.log('Login response:', response.data);
+      const { token, user } = response.data;
+      if (!token || !user) {
+        throw new Error('Invalid response from server');
       }
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      setUser(user);
+      console.log('User set:', user);
+      return true;
     } catch (error) {
-      console.error('Login error:', error);
-      alert('An error occurred during login');
+      console.error('Login error:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'An error occurred during login');
     }
   };
 
   const register = async (name, email, password, role) => {
     try {
-      const response = await fetch('http://localhost:5001/api/users/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, email, password, role }),
-      });
-
-      if (response.ok) {
-        alert('User registered successfully');
-      } else {
-        const data = await response.json();
-        alert(data.message);
-      }
+      const response = await axios.post(`${API_BASE_URL}/users/register`, { name, email, password, role });
+      console.log('Registration response:', response.data);
+      return response.data;
     } catch (error) {
-      console.error('Registration error:', error);
-      alert('An error occurred during registration');
+      console.error('Registration error:', error.response?.data || error.message);
+      throw new Error(error.response?.data?.message || 'An error occurred during registration');
     }
   };
 

@@ -4,7 +4,7 @@ const UserStats = require('../models/UserStats');
 const auth = require('../middleware/auth');
 
 // Get user stats
-router.get('/', auth(), async (req, res) => {
+router.get('/', auth, async (req, res) => {
   try {
     let userStats = await UserStats.findOne({ user: req.user._id });
     if (!userStats) {
@@ -13,12 +13,13 @@ router.get('/', auth(), async (req, res) => {
     }
     res.json(userStats);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error fetching user stats:', error);
+    res.status(500).json({ message: 'Error fetching user stats' });
   }
 });
 
 // Update experience
-router.post('/experience', auth(), async (req, res) => {
+router.post('/experience', auth, async (req, res) => {
   try {
     const { amount } = req.body;
     let userStats = await UserStats.findOne({ user: req.user._id });
@@ -30,12 +31,13 @@ router.post('/experience', auth(), async (req, res) => {
     await userStats.save();
     res.json(userStats);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error updating experience:', error);
+    res.status(400).json({ message: 'Error updating experience' });
   }
 });
 
 // Award badge
-router.post('/badge', auth(), async (req, res) => {
+router.post('/badge', auth, async (req, res) => {
   try {
     const { badgeId } = req.body;
     let userStats = await UserStats.findOne({ user: req.user._id });
@@ -48,7 +50,8 @@ router.post('/badge', auth(), async (req, res) => {
     await userStats.save();
     res.json(userStats);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error awarding badge:', error);
+    res.status(400).json({ message: 'Error awarding badge' });
   }
 });
 

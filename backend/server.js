@@ -4,7 +4,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 5001;
 
 // Middleware
 app.use(cors());
@@ -17,11 +17,10 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 
 // Importing routes
 const userRoutes = require('./routes/users');
-const courseRoutes = require('./routes/courseRoutes'); // Changed to courseRoutes
+const courseRoutes = require('./routes/courseRoutes');
 const quizRoutes = require('./routes/quizRoutes');
 const userProgressRoutes = require('./routes/userProgressRoutes');
 const userStatsRoutes = require('./routes/userStatsRoutes');
-
 
 // Using routes
 app.use('/api/users', userRoutes);
@@ -30,12 +29,10 @@ app.use('/api/quizzes', quizRoutes);
 app.use('/api/user-progress', userProgressRoutes);
 app.use('/api/user-stats', userStatsRoutes);
 
-
 // Routes
 app.get('/', (req, res) => {
   res.send('Welcome to the SmartBee API');
 });
-
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

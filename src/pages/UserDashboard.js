@@ -4,8 +4,9 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useAuth } from '../contexts/AuthContext';
 import { useGame } from '../contexts/GameContext';
 import { useNotification } from '../contexts/NotificationContext';
-import axios from 'axios';
 import UserBadges from '../components/UserBadges';
+import axios from 'axios';
+import { API_BASE_URL } from '../config';
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -30,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
 function UserDashboard() {
   const classes = useStyles();
   const { user } = useAuth();
-  const { userStats } = useGame();  // Удалено updateExperience
+  const { userStats } = useGame();
   const { showNotification } = useNotification();
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +39,7 @@ function UserDashboard() {
   useEffect(() => {
     const fetchEnrolledCourses = async () => {
       try {
-        const response = await axios.get('/api/user/enrolled-courses', {
+        const response = await axios.get(`${API_BASE_URL}/user/enrolled-courses`, {
           headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
         });
         setEnrolledCourses(response.data);
@@ -50,8 +51,10 @@ function UserDashboard() {
       }
     };
 
-    fetchEnrolledCourses();
-  }, [showNotification]);
+    if (user) {
+      fetchEnrolledCourses();
+    }
+  }, [user, showNotification]);
 
   if (loading) {
     return <CircularProgress />;

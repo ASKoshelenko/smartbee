@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
   },
   link: {
-    color: theme.palette.primary.main, // Желтый текст
+    color: theme.palette.primary.main,
     textDecoration: 'none',
     '&:hover': {
       color: theme.palette.primary.light,
@@ -24,13 +24,17 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   appBar: {
-    backgroundColor: theme.palette.secondary.main, // Черный фон
+    backgroundColor: theme.palette.secondary.main,
   },
   button: {
-    color: theme.palette.primary.main, // Желтый текст для кнопок
+    color: theme.palette.primary.main,
     '&:hover': {
-      backgroundColor: 'rgba(255, 193, 7, 0.1)', // Полупрозрачный желтый при наведении
+      backgroundColor: 'rgba(255, 193, 7, 0.1)',
     },
+  },
+  greeting: {
+    color: theme.palette.primary.main,
+    marginRight: theme.spacing(2),
   },
 }));
 
@@ -58,6 +62,11 @@ function Header() {
             SmartBee
           </Link>
         </Typography>
+        {user && (
+          <Typography variant="subtitle1" className={classes.greeting}>
+            Привет, {user.name}!
+          </Typography>
+        )}
         {isMobile ? (
           <>
             <IconButton edge="start" className={classes.menuButton} color="inherit" aria-label="menu" onClick={handleClick}>
@@ -95,10 +104,10 @@ function Header() {
             <Button className={classes.button} component={Link} to="/contact">Contact</Button>
             {user ? (
               <>
-              {user.role === 'admin' && <Button className={classes.button} component={Link} to="/admin">Admin Dashboard</Button>}
-              {user.role === 'tutor' && <Button className={classes.button} component={Link} to="/tutor">Tutor Dashboard</Button>}
-              {user.role === 'student' && <Button className={classes.button} component={Link} to="/student">Student Dashboard</Button>}
-              <Button className={classes.button} onClick={logout}>Logout</Button>
+                {user.role === 'admin' && <Button className={classes.button} component={Link} to="/admin">Admin Dashboard</Button>}
+                {user.role === 'tutor' && <Button className={classes.button} component={Link} to="/tutor">Tutor Dashboard</Button>}
+                {user.role === 'student' && <Button className={classes.button} component={Link} to="/student">Student Dashboard</Button>}
+                <Button className={classes.button} onClick={logout}>Logout</Button>
               </>
             ) : (
               <>
