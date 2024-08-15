@@ -1,207 +1,160 @@
-import React, { useState, useEffect } from 'react';
-import { Typography, Button, Grid, Paper, Box } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-import { useHistory } from 'react-router-dom';
-import { School, TrendingUp, EmojiObjects, Timer } from '@material-ui/icons';
-import { useSpring, animated } from 'react-spring';
-import styled from 'styled-components';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Route, Switch, Redirect, useLocation } from 'react-router-dom';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { CssBaseline, Container, Box, CircularProgress, Button } from '@material-ui/core';
+import { useTransition, animated } from 'react-spring';
+import theme from './theme';
+import { AuthProvider } from './contexts/AuthContext';
+import { CourseProvider } from './contexts/CourseContext';
+import { GameProvider } from './contexts/GameContext';
+import { NotificationProvider } from './contexts/NotificationContext';
+import Header from './components/Header';
+import Footer from './components/Footer';
+import ErrorBoundary from './components/ErrorBoundary';
+import GlobalErrorHandler from './components/GlobalErrorHandler';
+import PrivateRoute from './components/PrivateRoute';
 
-const HeroBackground = styled.div`
-  background-image: url(${process.env.PUBLIC_URL}/assets/images/hero-background.jpg);
-  background-size: cover;
-  background-position: center;
-  height: calc(100vh - 64px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    filter: blur(5px);
-  }
-`;
+// Lazy-loaded components
+const Home = lazy(() => import('./pages/Home'));
+const Courses = lazy(() => import('./pages/Courses'));
+const CourseDetail = lazy(() => import('./pages/CourseDetail'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Login = lazy(() => import('./components/Auth/Login'));
+const Register = lazy(() => import('./components/Auth/Register'));
+const Profile = lazy(() => import('./components/Profile'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const TutorDashboard = lazy(() => import('./pages/TutorDashboard'));
+const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
 
-const HeroContent = styled(animated.div)`
-  text-align: center;
-  color: white;
-  z-index: 1;
-  padding: 2rem;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 10px;
-`;
-
-const useStyles = makeStyles((theme) => ({
-  section: {
-    padding: theme.spacing(8, 0),
-  },
-  sectionTitle: {
-    marginBottom: theme.spacing(4),
-  },
-  featureIcon: {
-    fontSize: 48,
-    color: theme.palette.primary.main,
-    marginBottom: theme.spacing(2),
-  },
-  testimonialPaper: {
-    padding: theme.spacing(3),
-    height: '100%',
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-  },
-  ctaButton: {
-    marginTop: theme.spacing(4),
-  },
-}));
-
-function Home() {
-  const classes = useStyles();
-  const history = useHistory();
-  const [showWelcome, setShowWelcome] = useState(true);
+// ScrollToTop component
+function ScrollToTop() {
+  const { pathname } = useLocation();
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-    }, 5000);
+    window.scrollTo(0, 0);
+  }, [pathname]);
 
-    return () => clearTimeout(timer);
-  }, []);
+  return null;
+}
 
-  const fadeIn = useSpring({
-    opacity: showWelcome ? 1 : 0,
-    config: { duration: 1000 },
+// AnimatedRoutes component
+function AnimatedRoutes() {
+  const location = useLocation();
+  
+  const transitions = useTransition(location, {
+    from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
+    enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
+    leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
   });
 
-  const fadeOut = useSpring({
-    opacity: showWelcome ? 0 : 1,
-    config: { duration: 1000 },
-  });
+  return transitions((props, item) => (
+    <animated.div style={props}>
+      <Switch location={item}>
+        <Route exact path="/" component={Home} />
+        <Route path="/courses" component={Courses} />
+        <PrivateRoute path="/course/:id" component={CourseDetail} />
+        <Route path="/about" component={About} />
+        <Route path="/contact" component={Contact} />
+        <Route path="/login" component={Login} />
+        <Route path="/register" component={Register} />
+        <PrivateRoute path="/profile" component={Profile} />
+        <PrivateRoute path="/admin" component={AdminDashboard} roles={['admin']} />
+        <PrivateRoute path="/tutor" component={TutorDashboard} roles={['tutor', 'admin']} />
+        <PrivateRoute path="/student" component={StudentDashboard} roles={['student']} />
+        <Route path="*" render={() => <Redirect to="/" />} />
+      </Switch>
+    </animated.div>
+  ));
+}
 
-  const navigateTo = (path) => {
-    history.push(path);
+function App() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const initializeApp = async () => {
+    try {
+      // Simulate app initialization
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      setIsLoading(false);
+    } catch (err) {
+      console.error('Failed to initialize app:', err);
+      setError('Failed to initialize app. Please try again later.');
+      setIsLoading(false);
+    }
   };
 
+  useEffect(() => {
+    initializeApp();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <GlobalErrorHandler 
+        error={error} 
+        onRetry={() => {
+          setError(null);
+          setIsLoading(true);
+          initializeApp();
+        }} 
+      />
+    );
+  }
+
   return (
-    <>
-      <HeroBackground>
-        <HeroContent style={fadeIn}>
-          {showWelcome && (
-            <>
-              <Typography variant="h2" gutterBottom>
-                Welcome to SmartBee
-              </Typography>
-              <Typography variant="h5" gutterBottom>
-                Be smart with SmartBee!
-              </Typography>
-              <Typography variant="body1">
-                Prepare for your exams with confidence using our innovative learning platform.
-              </Typography>
-            </>
-          )}
-        </HeroContent>
-        <animated.div style={fadeOut}>
-          <Button
-            onClick={() => navigateTo('/courses')}
-            variant="contained"
-            color="secondary"
-            size="large"
-            className={classes.ctaButton}
-          >
-            Start Learning Now
-          </Button>
-        </animated.div>
-      </HeroBackground>
-
-      <Box className={classes.section}>
-        <Typography variant="h3" align="center" className={classes.sectionTitle}>
-          Why Choose SmartBee?
-        </Typography>
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box align="center">
-              <School className={classes.featureIcon} />
-              <Typography variant="h6" gutterBottom>Expert Tutors</Typography>
-              <Typography>Learn from experienced educators who know the exam requirements inside out.</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box align="center">
-              <TrendingUp className={classes.featureIcon} />
-              <Typography variant="h6" gutterBottom>Track Your Progress</Typography>
-              <Typography>Monitor your improvement with detailed analytics and performance insights.</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box align="center">
-              <EmojiObjects className={classes.featureIcon} />
-              <Typography variant="h6" gutterBottom>Adaptive Learning</Typography>
-              <Typography>Our AI-powered system adapts to your learning style for maximum efficiency.</Typography>
-            </Box>
-          </Grid>
-          <Grid item xs={12} sm={6} md={3}>
-            <Box align="center">
-              <Timer className={classes.featureIcon} />
-              <Typography variant="h6" gutterBottom>Practice Exams</Typography>
-              <Typography>Take timed, realistic practice exams to build your confidence and skills.</Typography>
-            </Box>
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Box className={classes.section}>
-        <Typography variant="h3" align="center" className={classes.sectionTitle}>
-          Student Success Stories
-        </Typography>
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
-            <Paper className={classes.testimonialPaper}>
-              <Typography variant="body1" paragraph>
-                "SmartBee helped me boost my grades and gain confidence in my abilities. I aced my exams!"
-              </Typography>
-              <Typography variant="subtitle2">- Sarah J., Grade 11</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper className={classes.testimonialPaper}>
-              <Typography variant="body1" paragraph>
-                "The practice exams were incredibly helpful. I felt well-prepared and calm during my actual tests."
-              </Typography>
-              <Typography variant="subtitle2">- Michael L., Grade 12</Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Paper className={classes.testimonialPaper}>
-              <Typography variant="body1" paragraph>
-                "I love how SmartBee adapts to my learning style. It's like having a personal tutor available 24/7!"
-              </Typography>
-              <Typography variant="subtitle2">- Emily R., Grade 10</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Box className={classes.section} textAlign="center">
-        <Typography variant="h3" gutterBottom>
-          Ready to Excel in Your Exams?
-        </Typography>
-        <Button
-          onClick={() => navigateTo('/register')}
-          variant="contained"
-          color="primary"
-          size="large"
-        >
-          Sign Up Now
-        </Button>
-      </Box>
-    </>
+    <ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <NotificationProvider>
+          <AuthProvider>
+            <CourseProvider>
+              <GameProvider>
+                <Router>
+                  <ScrollToTop />
+                  <Box 
+                    className="App" 
+                    display="flex" 
+                    flexDirection="column" 
+                    minHeight="100vh"
+                    bgcolor="background.default"
+                  >
+                    <Header />
+                    <Container 
+                      maxWidth={false} 
+                      component="main" 
+                      style={{
+                        flexGrow: 1, 
+                        paddingTop: '64px', 
+                        paddingLeft: 0,
+                        paddingRight: 0,
+                      }}
+                    >
+                      <Suspense fallback={
+                        <Box display="flex" justifyContent="center" alignItems="center" minHeight="calc(100vh - 64px)">
+                          <CircularProgress />
+                        </Box>
+                      }>
+                        <AnimatedRoutes />
+                      </Suspense>
+                    </Container>
+                    <Footer />
+                  </Box>
+                </Router>
+              </GameProvider>
+            </CourseProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
 
-export default Home;
+export default App;
