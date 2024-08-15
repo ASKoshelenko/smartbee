@@ -21,11 +21,20 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const setRefreshToken = (token) => {
+    if (token) {
+      localStorage.setItem('refreshToken', token);
+    } else {
+      localStorage.removeItem('refreshToken');
+    }
+  };
+
   const login = async (email, password) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/users/login`, { email, password });
-      const { token, user } = response.data;
+      const { token, refreshToken, user } = response.data;
       setAuthToken(token);
+      setRefreshToken(refreshToken);
       setUser(user);
       showNotification('Login successful', 'success');
       return true;
@@ -50,16 +59,17 @@ export const AuthProvider = ({ children }) => {
 
   const logout = useCallback(() => {
     setAuthToken(null);
+    setRefreshToken(null);
     setUser(null);
     showNotification('You have been logged out', 'info');
   }, [showNotification]);
 
   const refreshToken = useCallback(async () => {
     try {
-      const response = await axios.post(`${API_BASE_URL}/users/refresh-token`);
-      const { token, user } = response.data;
+      const refreshToken = localStorage.getItem('refreshToken');
+      const response = await axios.post(`${API_BASE_URL}/users/refresh-token`, { refreshToken });
+      const { token } = response.data;
       setAuthToken(token);
-      setUser(user);
       return true;
     } catch (error) {
       console.error('Error refreshing token:', error);

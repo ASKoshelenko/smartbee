@@ -48,7 +48,7 @@ function Contact() {
               label="Message"
               variant="outlined"
               multiline
-              rows={4}
+              minRows={4}
             />
             <Button
               variant="contained"

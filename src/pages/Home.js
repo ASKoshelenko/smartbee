@@ -1,29 +1,46 @@
 import React from 'react';
-import { Typography, Container, Button, Grid, Paper } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Typography, Container, Button, Grid, Paper, Box } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { Link } from 'react-router-dom';
+import { School, TrendingUp, EmojiObjects, Timer } from '@material-ui/icons';
 
 const useStyles = makeStyles((theme) => ({
-  heroContent: {
-    backgroundColor: theme.palette.background.paper,
-    padding: theme.spacing(8, 0, 6),
+  hero: {
+    backgroundImage: 'url("/assets/images/hero-background.jpg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    color: theme.palette.common.white,
+    padding: theme.spacing(20, 0),
+    textAlign: 'center',
   },
-  heroButtons: {
+  heroContent: {
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    padding: theme.spacing(4),
+    borderRadius: theme.shape.borderRadius,
+  },
+  subtitle: {
+    marginBottom: theme.spacing(4),
+  },
+  ctaButton: {
     marginTop: theme.spacing(4),
   },
-  paper: {
-    padding: theme.spacing(4),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
+  section: {
+    padding: theme.spacing(8, 0),
+  },
+  sectionTitle: {
+    marginBottom: theme.spacing(4),
+  },
+  featureIcon: {
+    fontSize: 48,
+    color: theme.palette.primary.main,
+    marginBottom: theme.spacing(2),
+  },
+  testimonialPaper: {
+    padding: theme.spacing(3),
     height: '100%',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'center',
-  },
-  icon: {
-    fontSize: 48,
-    marginBottom: theme.spacing(2),
-    color: theme.palette.primary.main,
+    justifyContent: 'space-between',
   },
 }));
 
@@ -32,49 +49,115 @@ function Home() {
 
   return (
     <>
-      <div className={classes.heroContent}>
-        <Container maxWidth="sm">
-          <Typography component="h1" variant="h2" align="center" color="textPrimary" gutterBottom>
-            Welcome to SmartBee
-          </Typography>
-          <Typography variant="h5" align="center" color="textSecondary" paragraph>
-            Be smart with Smart Bee
-          </Typography>
-          <div className={classes.heroButtons}>
-            <Grid container spacing={2} justifyContent="center">
-              <Grid item>
-                <Button variant="contained" color="primary" component={Link} to="/courses">
-                  Explore Courses
-                </Button>
-              </Grid>
-            </Grid>
-          </div>
+      <Box className={classes.hero}>
+        <Container maxWidth="md">
+          <Paper elevation={3} className={classes.heroContent}>
+            <Typography component="h1" variant="h2" gutterBottom>
+              Welcome to SmartBee
+            </Typography>
+            <Typography variant="h5" className={classes.subtitle}>
+              Be smart with SmartBee!
+            </Typography>
+            <Typography variant="body1" paragraph>
+              Prepare for your exams with confidence using our innovative learning platform.
+            </Typography>
+            <Button
+              component={Link}
+              to="/courses"
+              variant="contained"
+              color="secondary"
+              size="large"
+              className={classes.ctaButton}
+            >
+              Start Learning Now
+            </Button>
+          </Paper>
         </Container>
-      </div>
-      <Container maxWidth="md" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-        <Grid container spacing={4}>
-          <Grid item xs={12} sm={4}>
-            <Paper className={classes.paper}>
-              <div className={classes.icon}>📚</div>
-              <Typography variant="h5">Learn</Typography>
-              <Typography>Access a wide range of courses tailored to your needs.</Typography>
-            </Paper>
+      </Box>
+
+      <Container maxWidth="lg">
+        <Box className={classes.section}>
+          <Typography variant="h3" align="center" className={classes.sectionTitle}>
+            Why Choose SmartBee?
+          </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box align="center">
+                <School className={classes.featureIcon} />
+                <Typography variant="h6" gutterBottom>Expert Tutors</Typography>
+                <Typography>Learn from experienced educators who know the exam requirements inside out.</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box align="center">
+                <TrendingUp className={classes.featureIcon} />
+                <Typography variant="h6" gutterBottom>Track Your Progress</Typography>
+                <Typography>Monitor your improvement with detailed analytics and performance insights.</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box align="center">
+                <EmojiObjects className={classes.featureIcon} />
+                <Typography variant="h6" gutterBottom>Adaptive Learning</Typography>
+                <Typography>Our AI-powered system adapts to your learning style for maximum efficiency.</Typography>
+              </Box>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Box align="center">
+                <Timer className={classes.featureIcon} />
+                <Typography variant="h6" gutterBottom>Practice Exams</Typography>
+                <Typography>Take timed, realistic practice exams to build your confidence and skills.</Typography>
+              </Box>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper className={classes.paper}>
-              <div className={classes.icon}>🏆</div>
-              <Typography variant="h5">Achieve</Typography>
-              <Typography>Earn badges and track your progress as you learn.</Typography>
-            </Paper>
+        </Box>
+
+        <Box className={classes.section}>
+          <Typography variant="h3" align="center" className={classes.sectionTitle}>
+            Student Success Stories
+          </Typography>
+          <Grid container spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Paper className={classes.testimonialPaper}>
+                <Typography variant="body1" paragraph>
+                  "SmartBee helped me boost my grades and gain confidence in my abilities. I aced my exams!"
+                </Typography>
+                <Typography variant="subtitle2">- Sarah J., Grade 11</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper className={classes.testimonialPaper}>
+                <Typography variant="body1" paragraph>
+                  "The practice exams were incredibly helpful. I felt well-prepared and calm during my actual tests."
+                </Typography>
+                <Typography variant="subtitle2">- Michael L., Grade 12</Typography>
+              </Paper>
+            </Grid>
+            <Grid item xs={12} md={4}>
+              <Paper className={classes.testimonialPaper}>
+                <Typography variant="body1" paragraph>
+                  "I love how SmartBee adapts to my learning style. It's like having a personal tutor available 24/7!"
+                </Typography>
+                <Typography variant="subtitle2">- Emily R., Grade 10</Typography>
+              </Paper>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={4}>
-            <Paper className={classes.paper}>
-              <div className={classes.icon}>🚀</div>
-              <Typography variant="h5">Grow</Typography>
-              <Typography>Improve your skills and advance your career.</Typography>
-            </Paper>
-          </Grid>
-        </Grid>
+        </Box>
+
+        <Box className={classes.section} textAlign="center">
+          <Typography variant="h3" gutterBottom>
+            Ready to Excel in Your Exams?
+          </Typography>
+          <Button
+            component={Link}
+            to="/register"
+            variant="contained"
+            color="primary"
+            size="large"
+          >
+            Sign Up Now
+          </Button>
+        </Box>
       </Container>
     </>
   );

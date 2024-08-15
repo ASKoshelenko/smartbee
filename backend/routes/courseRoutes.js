@@ -5,10 +5,39 @@ const UserProgress = require('../models/UserProgress');
 const auth = require('../middleware/auth');
 const mongoose = require('mongoose');
 
-// Get all courses
+// Get all courses with search and filters
 router.get('/', async (req, res) => {
   try {
-    const courses = await Course.find().populate('tutor', 'name');
+    const { search, category, level, minPrice, maxPrice, sortBy } = req.query;
+    let query = {};
+
+    if (search) {
+      query.$text = { $search: search };
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    if (level) {
+      query.level = level;
+    }
+
+    if (minPrice !== undefined || maxPrice !== undefined) {
+      query.price = {};
+      if (minPrice !== undefined) query.price.$gte = Number(minPrice);
+      if (maxPrice !== undefined) query.price.$lte = Number(maxPrice);
+    }
+
+    let sort = {};
+    if (sortBy === 'price_asc') sort.price = 1;
+    if (sortBy === 'price_desc') sort.price = -1;
+    if (sortBy === 'rating') sort.averageRating = -1;
+
+    const courses = await Course.find(query)
+      .sort(sort)
+      .populate('tutor', 'name');
+
     res.json(courses);
   } catch (error) {
     console.error('Error fetching courses:', error);
@@ -164,32 +193,6 @@ router.post('/:id/enroll', auth(), async (req, res) => {
   }
 });
 
-// Add a review to a course
-router.post('/:id/reviews', auth(), async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.id);
-    if (!course) {
-      return res.status(404).json({ message: 'Course not found' });
-    }
-
-    const newReview = {
-      user: req.user._id,
-      rating: req.body.rating,
-      comment: req.body.comment
-    };
-
-    course.reviews.push(newReview);
-    course.calculateAverageRating();
-    await course.save();
-
-    res.status(201).json(course);
-  } catch (error) {
-    console.error('Error adding review:', error);
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Get all reviews for a course
 router.get('/:id/reviews', async (req, res) => {
   try {
     const course = await Course.findById(req.params.id).populate('reviews.user', 'name');
@@ -200,64 +203,6 @@ router.get('/:id/reviews', async (req, res) => {
   } catch (error) {
     console.error('Error fetching reviews:', error);
     res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Update a review
-router.put('/:courseId/reviews/:reviewId', auth(), async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.courseId);
-    if (!course) {
-      return res.status(404).json({ message: 'Course not found' });
-    }
-
-    const review = course.reviews.id(req.params.reviewId);
-    if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
-    }
-
-    if (review.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: 'You are not authorized to update this review' });
-    }
-
-    review.rating = req.body.rating || review.rating;
-    review.comment = req.body.comment || review.comment;
-
-    course.calculateAverageRating();
-    await course.save();
-
-    res.json(course);
-  } catch (error) {
-    console.error('Error updating review:', error);
-    res.status(400).json({ message: error.message });
-  }
-});
-
-// Delete a review
-router.delete('/:courseId/reviews/:reviewId', auth(), async (req, res) => {
-  try {
-    const course = await Course.findById(req.params.courseId);
-    if (!course) {
-      return res.status(404).json({ message: 'Course not found' });
-    }
-
-    const review = course.reviews.id(req.params.reviewId);
-    if (!review) {
-      return res.status(404).json({ message: 'Review not found' });
-    }
-
-    if (review.user.toString() !== req.user._id.toString() && req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'You are not authorized to delete this review' });
-    }
-
-    review.remove();
-    course.calculateAverageRating();
-    await course.save();
-
-    res.json({ message: 'Review deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting review:', error);
-    res.status(500).json({ message: error.message });
   }
 });
 

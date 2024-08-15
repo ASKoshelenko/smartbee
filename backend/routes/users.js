@@ -54,9 +54,16 @@ router.post('/login', loginLimiter, async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
+
+    const refreshToken = jwt.sign(
+      { id: user._id },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: '7d' }
+    );
     
     res.json({
       token,
+      refreshToken,
       user: {
         id: user._id,
         name: user.name,
@@ -154,6 +161,33 @@ router.put('/change-role/:userId', auth('admin'), async (req, res) => {
   } catch (error) {
     console.error('Error changing user role:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.post('/refresh-token', async (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token is required' });
+  }
+
+  try {
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const newToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.json({ token: newToken });
+  } catch (error) {
+    console.error('Error refreshing token:', error);
+    res.status(401).json({ message: 'Invalid refresh token' });
   }
 });
 

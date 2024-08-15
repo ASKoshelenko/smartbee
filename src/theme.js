@@ -3,19 +3,19 @@ import { createTheme } from '@material-ui/core/styles';
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#FFC107',
-      light: '#FFE082',
+      main: '#FFC107', // Amber
+      light: '#FFECB3',
       dark: '#FFA000',
       contrastText: '#212121',
     },
     secondary: {
-      main: '#212121',
-      light: '#484848',
-      dark: '#000000',
+      main: '#1976D2', // Blue
+      light: '#64B5F6',
+      dark: '#0D47A1',
       contrastText: '#FFFFFF',
     },
     background: {
-      default: '#FFFDE7',
+      default: '#F5F5F5',
       paper: '#FFFFFF',
     },
     text: {
@@ -32,26 +32,32 @@ const theme = createTheme({
     ].join(','),
     h1: {
       fontWeight: 700,
-      fontSize: '2.5rem',
+      fontSize: '3rem',
     },
     h2: {
       fontWeight: 600,
-      fontSize: '2rem',
+      fontSize: '2.5rem',
     },
     h3: {
       fontWeight: 600,
-      fontSize: '1.75rem',
+      fontSize: '2rem',
     },
     h4: {
       fontWeight: 600,
-      fontSize: '1.5rem',
+      fontSize: '1.75rem',
     },
     h5: {
       fontWeight: 600,
-      fontSize: '1.25rem',
+      fontSize: '1.5rem',
     },
     h6: {
       fontWeight: 600,
+      fontSize: '1.25rem',
+    },
+    subtitle1: {
+      fontSize: '1.1rem',
+    },
+    body1: {
       fontSize: '1rem',
     },
   },
@@ -61,36 +67,27 @@ const theme = createTheme({
   overrides: {
     MuiButton: {
       root: {
-        borderRadius: 25,
         textTransform: 'none',
         fontWeight: 600,
-        transition: 'all 0.3s ease-in-out',
-        '&:hover': {
-          transform: 'translateY(-3px)',
-          boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        },
+        padding: '10px 20px',
       },
       containedPrimary: {
-        background: 'linear-gradient(45deg, #FFC107 30%, #FFE082 90%)',
         '&:hover': {
-          background: 'linear-gradient(45deg, #FFD54F 30%, #FFF176 90%)',
+          backgroundColor: '#FFB300',
         },
       },
-    },
-    MuiCard: {
-      root: {
-        overflow: 'visible',
-        borderRadius: 15,
-        transition: 'all 0.3s ease-in-out',
+      containedSecondary: {
         '&:hover': {
-          transform: 'translateY(-5px)',
-          boxShadow: '0 8px 16px rgba(0, 0, 0, 0.1)',
+          backgroundColor: '#1565C0',
         },
       },
     },
     MuiPaper: {
       rounded: {
-        borderRadius: 15,
+        borderRadius: 8,
+      },
+      elevation1: {
+        boxShadow: '0px 3px 15px rgba(0,0,0,0.1)',
       },
     },
   },

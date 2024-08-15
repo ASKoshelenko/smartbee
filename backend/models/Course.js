@@ -88,16 +88,26 @@ const courseSchema = new mongoose.Schema({
   },
   price: {
     type: Number,
-    default: 0,  // Изменено: теперь по умолчанию 0
+    default: 0,
     min: 0
   },
   category: {
     type: String,
-    default: 'Uncategorized',  // Изменено: теперь есть значение по умолчанию
+    default: 'Uncategorized',
     trim: true
   },
   tags: [String],
   imageUrl: String,
+  level: {
+    type: String,
+    enum: ['Beginner', 'Intermediate', 'Advanced'],
+    default: 'Beginner'
+  },
+  duration: {
+    type: Number,
+    min: 0,
+    default: 0
+  },
   createdAt: {
     type: Date,
     default: Date.now
@@ -108,7 +118,8 @@ const courseSchema = new mongoose.Schema({
   }
 });
 
-// Метод для расчета среднего рейтинга
+courseSchema.index({ title: 'text', description: 'text', tags: 'text' });
+
 courseSchema.methods.calculateAverageRating = function() {
   if (this.reviews.length === 0) {
     this.averageRating = 0;
@@ -120,36 +131,29 @@ courseSchema.methods.calculateAverageRating = function() {
   }
 };
 
-// Метод для добавления нового отзыва
 courseSchema.methods.addReview = function(userId, rating, comment) {
   this.reviews.push({ user: userId, rating, comment });
   this.calculateAverageRating();
 };
 
-// Метод для удаления отзыва
 courseSchema.methods.removeReview = function(reviewId) {
   this.reviews = this.reviews.filter(review => review._id.toString() !== reviewId.toString());
   this.calculateAverageRating();
 };
 
-// Метод для увеличения количества зачисленных студентов
 courseSchema.methods.incrementEnrolledStudents = function() {
   this.enrolledStudents += 1;
 };
 
-// Middleware для обновления updatedAt при изменении курса
 courseSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Виртуальное свойство для получения количества уроков
 courseSchema.virtual('totalLessons').get(function() {
   return this.sections.reduce((total, section) => total + section.lessons.length, 0);
 });
 
-// Индексы для оптимизации запросов
-courseSchema.index({ title: 'text', description: 'text' });
 courseSchema.index({ category: 1, averageRating: -1 });
 
 const Course = mongoose.model('Course', courseSchema);
