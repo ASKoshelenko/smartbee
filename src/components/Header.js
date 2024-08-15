@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, useMediaQuery } from '@material-ui/core';
 import { Menu as MenuIcon } from '@material-ui/icons';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: 'Poppins, sans-serif',
     fontWeight: 700,
     color: theme.palette.primary.contrastText,
-    textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
+    textDecoration: 'none',
   },
   link: {
     color: theme.palette.primary.contrastText,
@@ -61,6 +61,11 @@ function Header() {
     setAnchorEl(null);
   };
 
+  const handleLogout = () => {
+    logout();
+    handleClose();
+  };
+
   const getDashboardLink = () => {
     switch(user?.role) {
       case 'admin':
@@ -68,9 +73,8 @@ function Header() {
       case 'tutor':
         return '/tutor';
       case 'student':
-        return '/student';
       default:
-        return '/';
+        return '/student';
     }
   };
 
@@ -78,10 +82,8 @@ function Header() {
     <AppBar position="static" className={classes.appBar}>
       <Toolbar>
         <img src="/assets/icons/bee-logo.png" alt="SmartBee Logo" className={classes.logo} />
-        <Typography variant="h6" className={classes.title}>
-          <Link to="/" className={classes.link}>
-            SmartBee
-          </Link>
+        <Typography variant="h6" className={classes.title} component={RouterLink} to="/">
+          SmartBee
         </Typography>
         {isMobile ? (
           <>
@@ -95,38 +97,38 @@ function Header() {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose} component={Link} to="/courses">Courses</MenuItem>
-              <MenuItem onClick={handleClose} component={Link} to="/about">About</MenuItem>
-              <MenuItem onClick={handleClose} component={Link} to="/contact">Contact</MenuItem>
+              <MenuItem onClick={handleClose} component={RouterLink} to="/courses">Courses</MenuItem>
+              <MenuItem onClick={handleClose} component={RouterLink} to="/about">About</MenuItem>
+              <MenuItem onClick={handleClose} component={RouterLink} to="/contact">Contact</MenuItem>
               {user ? (
                 <>
-                  <MenuItem onClick={handleClose} component={Link} to="/profile">Profile</MenuItem>
-                  <MenuItem onClick={handleClose} component={Link} to={getDashboardLink()}>Dashboard</MenuItem>
-                  <MenuItem onClick={() => { logout(); handleClose(); }}>Logout</MenuItem>
+                  <MenuItem onClick={handleClose} component={RouterLink} to="/profile">Profile</MenuItem>
+                  <MenuItem onClick={handleClose} component={RouterLink} to={getDashboardLink()}>Dashboard</MenuItem>
+                  <MenuItem onClick={handleLogout}>Logout</MenuItem>
                 </>
               ) : (
                 <>
-                  <MenuItem onClick={handleClose} component={Link} to="/login">Login</MenuItem>
-                  <MenuItem onClick={handleClose} component={Link} to="/register">Register</MenuItem>
+                  <MenuItem onClick={handleClose} component={RouterLink} to="/login">Login</MenuItem>
+                  <MenuItem onClick={handleClose} component={RouterLink} to="/register">Register</MenuItem>
                 </>
               )}
             </Menu>
           </>
         ) : (
           <>
-            <Button className={classes.button} component={Link} to="/courses">Courses</Button>
-            <Button className={classes.button} component={Link} to="/about">About</Button>
-            <Button className={classes.button} component={Link} to="/contact">Contact</Button>
+            <Button className={classes.button} component={RouterLink} to="/courses">Courses</Button>
+            <Button className={classes.button} component={RouterLink} to="/about">About</Button>
+            <Button className={classes.button} component={RouterLink} to="/contact">Contact</Button>
             {user ? (
               <>
-                <Button className={classes.button} component={Link} to="/profile">Profile</Button>
-                <Button className={classes.button} component={Link} to={getDashboardLink()}>Dashboard</Button>
+                <Button className={classes.button} component={RouterLink} to="/profile">Profile</Button>
+                <Button className={classes.button} component={RouterLink} to={getDashboardLink()}>Dashboard</Button>
                 <Button className={classes.button} onClick={logout}>Logout</Button>
               </>
             ) : (
               <>
-                <Button className={classes.button} component={Link} to="/login">Login</Button>
-                <Button className={classes.button} component={Link} to="/register">Register</Button>
+                <Button className={classes.button} component={RouterLink} to="/login">Login</Button>
+                <Button className={classes.button} component={RouterLink} to="/register">Register</Button>
               </>
             )}
           </>

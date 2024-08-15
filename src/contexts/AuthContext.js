@@ -1,67 +1,131 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import axios from 'axios';
+import { useNotification } from './NotificationContext';
 
 const AuthContext = createContext(null);
 
-const API_BASE_URL = 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const { showNotification } = useNotification();
 
-  useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Error parsing stored user:', error);
-        localStorage.removeItem('user');
-      }
+  const setAuthToken = (token) => {
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      localStorage.setItem('token', token);
+    } else {
+      delete axios.defaults.headers.common['Authorization'];
+      localStorage.removeItem('token');
     }
-  }, []);
+  };
 
   const login = async (email, password) => {
     try {
-      console.log('Attempting login with:', email);
       const response = await axios.post(`${API_BASE_URL}/users/login`, { email, password });
-      console.log('Login response:', response.data);
       const { token, user } = response.data;
-      if (!token || !user) {
-        throw new Error('Invalid response from server');
-      }
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      setAuthToken(token);
       setUser(user);
-      console.log('User set:', user);
+      showNotification('Login successful', 'success');
       return true;
     } catch (error) {
-      console.error('Login error:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || 'An error occurred during login');
+      const errorMessage = error.response?.data?.message || 'An error occurred during login';
+      showNotification(errorMessage, 'error');
+      throw new Error(errorMessage);
     }
   };
 
   const register = async (name, email, password, role) => {
     try {
       const response = await axios.post(`${API_BASE_URL}/users/register`, { name, email, password, role });
-      console.log('Registration response:', response.data);
+      showNotification('Registration successful. Please log in.', 'success');
       return response.data;
     } catch (error) {
-      console.error('Registration error:', error.response?.data || error.message);
-      throw new Error(error.response?.data?.message || 'An error occurred during registration');
+      const errorMessage = error.response?.data?.message || 'An error occurred during registration';
+      showNotification(errorMessage, 'error');
+      throw new Error(errorMessage);
     }
   };
 
-  const logout = () => {
+  const logout = useCallback(() => {
+    setAuthToken(null);
     setUser(null);
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-  };
+    showNotification('You have been logged out', 'info');
+  }, [showNotification]);
+
+  const refreshToken = useCallback(async () => {
+    try {
+      const response = await axios.post(`${API_BASE_URL}/users/refresh-token`);
+      const { token, user } = response.data;
+      setAuthToken(token);
+      setUser(user);
+      return true;
+    } catch (error) {
+      console.error('Error refreshing token:', error);
+      logout();
+      return false;
+    }
+  }, [logout]);
+
+  const checkAuthStatus = useCallback(async () => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      setAuthToken(token);
+      try {
+        const response = await axios.get(`${API_BASE_URL}/users/me`);
+        setUser(response.data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        if (error.response?.status === 401) {
+          const refreshed = await refreshToken();
+          if (!refreshed) {
+            logout();
+          }
+        } else {
+          logout();
+        }
+      }
+    }
+    setLoading(false);
+  }, [logout, refreshToken]);
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, [checkAuthStatus]);
+
+  // Interceptor для автоматического обновления токена
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        if (error.response?.status === 401 && !error.config._retry) {
+          error.config._retry = true;
+          try {
+            await refreshToken();
+            return axios(error.config);
+          } catch (refreshError) {
+            return Promise.reject(refreshError);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
+    return () => axios.interceptors.response.eject(interceptor);
+  }, [refreshToken]);
 
   return (
-    <AuthContext.Provider value={{ user, login, register, logout }}>
+    <AuthContext.Provider value={{ user, login, register, logout, loading, refreshToken }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
