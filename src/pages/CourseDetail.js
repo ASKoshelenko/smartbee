@@ -221,6 +221,7 @@ function CourseDetail() {
                   variant="outlined"
                   value={newReview.comment}
                   onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
+                  inputProps={{ 'aria-label': 'Your comment' }}
                 />
                 <Button type="submit" variant="contained" color="primary">
                   Submit Review

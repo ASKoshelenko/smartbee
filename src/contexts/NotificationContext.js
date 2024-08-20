@@ -1,4 +1,3 @@
-// NotificationContext.js
 import React, { createContext, useState, useContext } from 'react';
 import { Snackbar } from '@material-ui/core';
 import MuiAlert from '@material-ui/lab/Alert';
@@ -15,12 +14,12 @@ export const SEVERITY_TYPES = {
 export const NotificationProvider = ({ children }) => {
   const [notification, setNotification] = useState(null);
 
-  const showNotification = (message, severity = SEVERITY_TYPES.INFO, duration = 6000, autoHide = true) => {
-    setNotification({ message, severity, duration, autoHide });
+  const showNotification = (message, severity = SEVERITY_TYPES.INFO, duration = 6000) => {
+    setNotification({ message, severity, duration });
   };
 
   const hideNotification = (event, reason) => {
-    if (reason === 'clickaway' && notification?.autoHide) {
+    if (reason === 'clickaway') {
       return;
     }
     setNotification(null);
@@ -31,7 +30,7 @@ export const NotificationProvider = ({ children }) => {
       {children}
       <Snackbar 
         open={!!notification} 
-        autoHideDuration={notification?.autoHide ? notification.duration : null} 
+        autoHideDuration={notification?.duration} 
         onClose={hideNotification}
       >
         <MuiAlert 
