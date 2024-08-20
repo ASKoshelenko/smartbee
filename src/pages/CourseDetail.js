@@ -44,16 +44,6 @@ const useStyles = makeStyles((theme) => ({
     height: 10,
     borderRadius: 5,
   },
-  icon: {
-    marginRight: theme.spacing(1),
-  },
-  dialogContent: {
-    padding: theme.spacing(2),
-  },
-  mediaContent: {
-    maxWidth: '100%',
-    height: 'auto',
-  },
   reviewSection: {
     marginTop: theme.spacing(4),
   },
@@ -82,14 +72,15 @@ function CourseDetail() {
   useEffect(() => {
     const fetchCourseAndReviews = async () => {
       try {
+        setLoading(true);
         const courseResponse = await axios.get(`http://localhost:5001/api/courses/${id}`);
         setCourse(courseResponse.data);
         const reviewsResponse = await axios.get(`http://localhost:5001/api/courses/${id}/reviews`);
         setReviews(reviewsResponse.data);
-        setLoading(false);
       } catch (err) {
         console.error('Error fetching course or reviews:', err);
         setError('Failed to load course details. Please try again later.');
+      } finally {
         setLoading(false);
       }
     };
@@ -106,31 +97,37 @@ function CourseDetail() {
       setNewReview({ rating: 0, comment: '' });
     } catch (error) {
       console.error('Error adding review:', error);
+      setError('Failed to add review. Please try again.');
     }
   };
 
   const handleLessonComplete = async (sectionIndex, lessonIndex) => {
-    const progress = userProgress[course._id] || { completed: false, completion: 0 };
-    const totalLessons = course.sections.reduce((total, section) => total + section.lessons.length, 0);
-    const completedLessons = progress.completion / 100 * totalLessons + 1;
-    const newCompletion = (completedLessons / totalLessons) * 100;
+    try {
+      const progress = userProgress[course._id] || { completed: false, completion: 0 };
+      const totalLessons = course.sections.reduce((total, section) => total + section.lessons.length, 0);
+      const completedLessons = progress.completion / 100 * totalLessons + 1;
+      const newCompletion = (completedLessons / totalLessons) * 100;
 
-    await updateProgress(course._id, { 
-      ...progress, 
-      completion: newCompletion,
-      lastLesson: { sectionIndex, lessonIndex }
-    });
+      await updateProgress(course._id, { 
+        ...progress, 
+        completion: newCompletion,
+        lastLesson: { sectionIndex, lessonIndex }
+      });
 
-    await updateExperience(10); // Предположим, что за каждый урок дается 10 XP
+      await updateExperience(10); // Предположим, что за каждый урок дается 10 XP
 
-    if (newCompletion === 100) {
-      await awardBadge('course_complete');
+      if (newCompletion === 100) {
+        await awardBadge('course_complete');
+      }
+    } catch (error) {
+      console.error('Error updating progress:', error);
+      setError('Failed to update progress. Please try again.');
     }
   };
 
-  if (loading) return <CircularProgress />;
-  if (error) return <Typography color="error">{error}</Typography>;
-  if (!course) return <Typography>Course not found</Typography>;
+  if (loading) return <CircularProgress data-testid="loading-spinner" />;
+  if (error) return <Typography color="error" data-testid="error-message">{error}</Typography>;
+  if (!course) return <Typography data-testid="not-found-message">Course not found</Typography>;
 
   const progress = userProgress[course._id] || { completed: false, completion: 0 };
 
@@ -144,7 +141,7 @@ function CourseDetail() {
           title={course.title}
         />
         <CardContent>
-          <Typography gutterBottom variant="h3" component="h1">
+          <Typography data-testid="course-title" gutterBottom variant="h3" component="h1">
             {course.title}
           </Typography>
           <Typography variant="body1" color="textSecondary" paragraph>
@@ -152,7 +149,7 @@ function CourseDetail() {
           </Typography>
           <div className={classes.progressContainer}>
             <Typography variant="body2" color="textSecondary">
-              Course Progress: {Math.round(progress.completion)}%
+              Course Progress: <span data-testid="course-progress">{Math.round(progress.completion)}%</span>
             </Typography>
             <div className={classes.progress}>
               <div

@@ -21,6 +21,10 @@ const UserProgress = () => {
   const classes = useStyles();
   const { userStats } = useGame();
 
+  if (!userStats) {
+    return null; // или можно вернуть заглушку/скелетон
+  }
+
   return (
     <Paper className={classes.root}>
       <Typography variant="h6" gutterBottom>Your Progress</Typography>

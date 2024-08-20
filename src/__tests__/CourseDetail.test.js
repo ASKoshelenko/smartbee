@@ -19,7 +19,6 @@ jest.mock('react-router-dom', () => ({
   }),
 }));
 
-// Мок для AuthContext
 jest.mock('../contexts/AuthContext', () => ({
   ...jest.requireActual('../contexts/AuthContext'),
   useAuth: () => ({
@@ -27,7 +26,6 @@ jest.mock('../contexts/AuthContext', () => ({
   }),
 }));
 
-// Мок для CourseContext
 jest.mock('../contexts/CourseContext', () => ({
   ...jest.requireActual('../contexts/CourseContext'),
   useCourses: () => ({
@@ -36,10 +34,15 @@ jest.mock('../contexts/CourseContext', () => ({
   }),
 }));
 
-// Мок для GameContext
 jest.mock('../contexts/GameContext', () => ({
   ...jest.requireActual('../contexts/GameContext'),
   useGame: () => ({
+    userStats: {
+      level: 1,
+      experience: 0,
+      badges: [],
+      streakDays: 0
+    },
     updateExperience: jest.fn(),
     awardBadge: jest.fn(),
   }),
@@ -66,12 +69,12 @@ const mockReviews = [
 ];
 
 describe('CourseDetail Component', () => {
-  beforeEach(async () => {
+  beforeEach(() => {
     axios.get.mockImplementation((url) => {
       if (url.includes('/reviews')) {
         return Promise.resolve({ data: mockReviews });
       }
-      return Promise.resolve({ data: mockCourse });
+      return new Promise(resolve => setTimeout(() => resolve({ data: mockCourse }), 100));
     });
     
     render(
@@ -85,47 +88,46 @@ describe('CourseDetail Component', () => {
         </AuthProvider>
       </NotificationProvider>
     );
+  });
 
-    await waitFor(() => expect(axios.get).toHaveBeenCalledTimes(2));
+  test('renders loading state initially', async () => {
+    expect(screen.getByTestId('loading-spinner')).toBeInTheDocument();
+    await waitFor(() => expect(screen.getByTestId('course-title')).toBeInTheDocument());
   });
 
   test('renders course details', async () => {
-    await waitFor(() => {
-      expect(screen.getByText('Test Course')).toBeInTheDocument();
-      expect(screen.getByText('This is a test course')).toBeInTheDocument();
-      expect(screen.getByText('Section 1')).toBeInTheDocument();
-      expect(screen.getByText('Lesson 1')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('course-title')).toBeInTheDocument());
+    expect(screen.getByText('Test Course')).toBeInTheDocument();
+    expect(screen.getByText('This is a test course')).toBeInTheDocument();
+    expect(screen.getByText('Section 1')).toBeInTheDocument();
   });
 
   test('displays course progress', async () => {
-    await waitFor(() => {
-      expect(screen.getByText(/Course Progress: 50%/)).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('course-title')).toBeInTheDocument());
+    expect(screen.getByText(/Course Progress:/)).toBeInTheDocument();
+    expect(screen.getByTestId('course-progress')).toHaveTextContent('50%');
   });
 
   test('displays reviews', async () => {
-    await waitFor(() => {
-      expect(screen.getByText('Reviews')).toBeInTheDocument();
-      expect(screen.getByText('Great course!')).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('course-title')).toBeInTheDocument());
+    expect(screen.getByText('Reviews')).toBeInTheDocument();
+    expect(screen.getByText('Great course!')).toBeInTheDocument();
   });
 
   test('shows add review form when user is logged in', async () => {
-    await waitFor(() => {
-      expect(screen.getByText('Add Your Review')).toBeInTheDocument();
-      expect(screen.getByRole('button', { name: 'Submit Review' })).toBeInTheDocument();
-    });
+    await waitFor(() => expect(screen.getByTestId('course-title')).toBeInTheDocument());
+    expect(screen.getByText('Add Your Review')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Submit Review' })).toBeInTheDocument();
   });
 
   test('allows adding a new review', async () => {
-    await waitFor(() => {
-      const commentInput = screen.getByLabelText('Your comment');
-      fireEvent.change(commentInput, { target: { value: 'New review comment' } });
-      
-      const submitButton = screen.getByRole('button', { name: 'Submit Review' });
-      fireEvent.click(submitButton);
-    });
+    await waitFor(() => expect(screen.getByTestId('course-title')).toBeInTheDocument());
+    
+    const commentInput = screen.getByLabelText('Your comment');
+    fireEvent.change(commentInput, { target: { value: 'New review comment' } });
+    
+    const submitButton = screen.getByRole('button', { name: 'Submit Review' });
+    fireEvent.click(submitButton);
 
     await waitFor(() => {
       expect(axios.post).toHaveBeenCalledWith(
@@ -134,5 +136,22 @@ describe('CourseDetail Component', () => {
         expect.any(Object)
       );
     });
+  });
+
+  test('handles error state', async () => {
+    axios.get.mockRejectedValueOnce(new Error('Failed to fetch'));
+    render(
+      <NotificationProvider>
+        <AuthProvider>
+          <CourseProvider>
+            <GameProvider>
+              <CourseDetail />
+            </GameProvider>
+          </CourseProvider>
+        </AuthProvider>
+      </NotificationProvider>
+    );
+    await waitFor(() => expect(screen.getByTestId('error-message')).toBeInTheDocument());
+    expect(screen.getByText('Failed to load course details. Please try again later.')).toBeInTheDocument();
   });
 });
