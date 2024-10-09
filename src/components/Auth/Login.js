@@ -74,6 +74,7 @@ function Login() {
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            inputProps={{ "data-testid": "email-input" }}
           />
           <TextField
             variant="outlined"
@@ -87,6 +88,7 @@ function Login() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            inputProps={{ "data-testid": "password-input" }}
           />
           <Button
             type="submit"
