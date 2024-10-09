@@ -17,8 +17,9 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "test": "npm run create-test-users && react-scripts test --env=jsdom",
+    "eject": "react-scripts eject",
+    "create-test-users": "node ./backend/createTestUsers.js"
   },
   "eslintConfig": {
     "extends": [

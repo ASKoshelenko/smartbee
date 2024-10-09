@@ -44,12 +44,17 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      showNotification('Please enter both email and password', 'error');
+      return;
+    }
     setLoading(true);
     try {
       await login(email, password);
+      showNotification('Login successful', 'success');
       history.push('/dashboard');
     } catch (error) {
-      showNotification(error.message, 'error');
+      showNotification(error.message || 'An error occurred during login', 'error');
     } finally {
       setLoading(false);
     }
@@ -61,7 +66,7 @@ function Login() {
         <Typography component="h1" variant="h5">
           Sign in to SmartBee
         </Typography>
-        <form className={classes.form} onSubmit={handleSubmit}>
+        <form className={classes.form} onSubmit={handleSubmit} noValidate>
           <TextField
             variant="outlined"
             margin="normal"
@@ -74,7 +79,10 @@ function Login() {
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            inputProps={{ "data-testid": "email-input" }}
+            inputProps={{ 
+              "data-testid": "email-input",
+              "aria-label": "Email Address"
+            }}
           />
           <TextField
             variant="outlined"
@@ -88,7 +96,10 @@ function Login() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            inputProps={{ "data-testid": "password-input" }}
+            inputProps={{ 
+              "data-testid": "password-input",
+              "aria-label": "Password"
+            }}
           />
           <Button
             type="submit"
@@ -97,6 +108,7 @@ function Login() {
             color="primary"
             className={classes.submit}
             disabled={loading}
+            aria-label="Sign In"
           >
             {loading ? <CircularProgress size={24} /> : 'Sign In'}
           </Button>
