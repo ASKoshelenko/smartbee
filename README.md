@@ -1,70 +1,203 @@
-# Getting Started with Create React App
+# SmartBee - Платформа подготовки к НМТ
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+SmartBee - это образовательная платформа для подготовки украинских школьников к Национальному мультипредметному тесту (НМТ). Платформа предоставляет интерактивные курсы, тесты и аналитику для эффективной подготовки к экзаменам.
 
-## Available Scripts
+## Текущий статус проекта
 
-In the project directory, you can run:
+### Реализовано
+- ✅ Базовая структура фронтенда
+- ✅ Система аутентификации (регистрация, вход)
+- ✅ Защищенные маршруты
+- ✅ Базовый макет приложения
+- ✅ Система уведомлений
+- ✅ Обработка ошибок
+- ✅ Адаптивный дизайн
+- ✅ Поддержка темной/светлой темы
 
-### `npm start`
+### В разработке
+- 🔄 API endpoints
+- 🔄 Интеграция с бэкендом
+- 🔄 Профиль пользователя
+- 🔄 Страницы курсов
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+### Планируется
+- 📅 Тестирование
+- 📅 Кэширование
+- 📅 Офлайн режим
+- 📅 Расширенная аналитика
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Технический стек
 
-### `npm test`
+### Фронтенд
+- React 17.x
+- Material-UI 4.x
+- React Router 5.x
+- Axios
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Бэкенд (в разработке)
+- Node.js
+- Express.js
+- MongoDB
+- JWT
 
-### `npm run build`
+## Установка и запуск
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Требования
+- Node.js 14.x или выше
+- npm 6.x или выше
+- MongoDB 4.x или выше
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Установка
+```bash
+# Клонирование репозитория
+git clone https://github.com/your-username/smartbee.git
+cd smartbee
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+# Установка зависимостей
+npm install
 
-### `npm run eject`
+# Запуск в режиме разработки
+npm start
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+### Переменные окружения
+Создайте файл `.env` в корневой директории:
+```env
+REACT_APP_API_URL=http://localhost:3001/api
+REACT_APP_ENV=development
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Структура проекта
+```
+smartbee/
+├── src/
+│   ├── components/     # React компоненты
+│   ├── contexts/       # React контексты
+│   ├── pages/         # Страницы приложения
+│   └── App.js         # Корневой компонент
+├── docs/              # Документация
+├── backend/           # Бэкенд (в разработке)
+└── README.md
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Документация
+- [Архитектура](docs/Architecture.md)
+- [Задачи](docs/Tasktracker.md)
+- [Вопросы и ответы](docs/QA.md)
+- [Дневник разработки](docs/Diary.md)
+- [Педагогика](docs/PEDAGOGY.md)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Разработка
 
-## Learn More
+### Git workflow
+- Ветки: feature/, fix/, hotfix/
+- Коммиты: conventional commits
+- PR: код ревью обязателен
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Тестирование
+```bash
+# Запуск тестов
+npm test
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+# Проверка линтером
+npm run lint
+```
 
-### Code Splitting
+## Лицензия
+MIT
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Контакты
+- Email: your-email@example.com
+- Telegram: @your-username
 
-### Analyzing the Bundle Size
+## О проекте
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+SmartBee - это образовательная платформа для подготовки украинских школьников к НМТ (ЗНО) экзаменам, начиная с украинского языка. Платформа предлагает адаптивное тестирование, персонализированные образовательные материалы и детальную аналитику прогресса для эффективной подготовки к экзаменам.
 
-### Making a Progressive Web App
+## Ключевые особенности
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Адаптивное тестирование**: Вопросы подбираются индивидуально под уровень знаний ученика
+- **Персонализированное обучение**: Индивидуальная траектория обучения на основе анализа прогресса
+- **Работа оффлайн**: Поддержка режима без интернета благодаря PWA
+- **Геймификация**: Система достижений и наград для повышения мотивации
+- **Детальная аналитика**: Отслеживание прогресса и выявление проблемных областей
 
-### Advanced Configuration
+## Документация
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+Подробная документация проекта находится в директории [docs](./docs):
 
-### Deployment
+1. **[Project.md](./docs/Project.md)** - Детальное описание проекта, включая цели, архитектуру и требования
+2. **[Architecture.md](./docs/Architecture.md)** - Архитектура системы и план развития
+3. **[QA.md](./docs/QA.md)** - Ответы на ключевые вопросы по образовательным, техническим и UX аспектам
+4. **[PEDAGOGY.md](./docs/PEDAGOGY.md)** - Образовательные методики и подходы
+5. **[Tasktracker.md](./docs/Tasktracker.md)** - Система отслеживания задач
+6. **[Diary.md](./docs/Diary.md)** - Журнал разработки
+7. **[README.md](./docs/README.md)** - Обзор документации
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Технологический стек
 
-### `npm run build` fails to minify
+### Frontend
+- React.js
+- Material-UI
+- PWA (Service Workers)
+- React Context API
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Redis (кеширование)
+
+### Инфраструктура (Azure)
+- Azure Static Web Apps (фронтенд)
+- Azure App Service (бэкенд)
+- MongoDB Atlas
+- Azure Redis Cache
+- Azure Blob Storage с CDN
+- Azure AD B2C (аутентификация)
+
+## Оптимизация затрат
+
+Проект разработан с учетом оптимизации затрат на инфраструктуру в пределах $25/месяц:
+
+- Эффективное использование бесплатных и базовых тарифов Azure
+- Оптимизация кода и ресурсов для минимизации нагрузки
+- Стратегии кеширования для снижения количества запросов
+- Гибкая деградация функциональности при высокой нагрузке
+
+## Установка и запуск
+
+### Требования
+- Node.js 14+
+- MongoDB
+- Redis (опционально)
+
+### Установка
+```bash
+# Клонирование репозитория
+git clone https://github.com/yourusername/smartbee.git
+cd smartbee
+
+# Установка зависимостей
+npm install
+
+# Настройка переменных окружения
+cp .env.example .env
+# Отредактируйте .env файл, добавив необходимые параметры
+
+# Запуск в режиме разработки
+npm run dev
+```
+
+### Развертывание
+```bash
+# Сборка проекта
+npm run build
+
+# Запуск в production режиме
+npm start
+```
+
+## Лицензия
+
+MIT 

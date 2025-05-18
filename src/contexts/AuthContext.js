@@ -9,6 +9,7 @@ const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:500
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const { showNotification } = useNotification();
 
   const setAuthToken = (token) => {
@@ -29,31 +30,58 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const checkAuth = async (token) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data);
+      setError(null);
+    } catch (err) {
+      console.error('Auth check failed:', err);
+      localStorage.removeItem('token');
+      setUser(null);
+      setError('Сессия истекла. Пожалуйста, войдите снова.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const login = async (email, password) => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await axios.post(`${API_BASE_URL}/users/login`, { email, password });
       const { token, refreshToken, user } = response.data;
       setAuthToken(token);
       setRefreshToken(refreshToken);
       setUser(user);
       showNotification('Login successful', 'success');
-      return true;
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'An error occurred during login';
-      showNotification(errorMessage, 'error');
-      throw new Error(errorMessage);
+      return user;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Ошибка входа';
+      setError(message);
+      showNotification(message, 'error');
+      throw new Error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
   const register = async (name, email, password, role) => {
     try {
+      setLoading(true);
+      setError(null);
       const response = await axios.post(`${API_BASE_URL}/users/register`, { name, email, password, role });
       showNotification('Registration successful. Please log in.', 'success');
       return response.data;
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'An error occurred during registration';
-      showNotification(errorMessage, 'error');
-      throw new Error(errorMessage);
+    } catch (err) {
+      const message = err.response?.data?.message || 'Ошибка регистрации';
+      setError(message);
+      showNotification(message, 'error');
+      throw new Error(message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -61,6 +89,7 @@ export const AuthProvider = ({ children }) => {
     setAuthToken(null);
     setRefreshToken(null);
     setUser(null);
+    setError(null);
     showNotification('You have been logged out', 'info');
   }, [showNotification]);
 
@@ -78,31 +107,34 @@ export const AuthProvider = ({ children }) => {
     }
   }, [logout]);
 
-  const checkAuthStatus = useCallback(async () => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      setAuthToken(token);
-      try {
-        const response = await axios.get(`${API_BASE_URL}/users/me`);
-        setUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        if (error.response?.status === 401) {
-          const refreshed = await refreshToken();
-          if (!refreshed) {
-            logout();
-          }
-        } else {
-          logout();
-        }
-      }
+  const updateProfile = async (profileData) => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem('token');
+      const response = await axios.put(`${API_BASE_URL}/users/profile`, profileData, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data);
+      return response.data;
+    } catch (err) {
+      const message = err.response?.data?.message || 'Ошибка обновления профиля';
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [logout, refreshToken]);
+  };
 
   useEffect(() => {
-    checkAuthStatus();
-  }, [checkAuthStatus]);
+    // Проверяем наличие токена при загрузке
+    const token = localStorage.getItem('token');
+    if (token) {
+      checkAuth(token);
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   // Interceptor для автоматического обновления токена
   useEffect(() => {
@@ -125,8 +157,19 @@ export const AuthProvider = ({ children }) => {
     return () => axios.interceptors.response.eject(interceptor);
   }, [refreshToken]);
 
+  const value = {
+    user,
+    loading,
+    error,
+    login,
+    register,
+    logout,
+    updateProfile,
+    refreshToken
+  };
+
   return (
-    <AuthContext.Provider value={{ user, login, register, logout, loading, refreshToken }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
@@ -139,3 +182,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+export default AuthContext;

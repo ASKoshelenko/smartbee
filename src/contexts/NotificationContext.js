@@ -1,46 +1,69 @@
-import React, { createContext, useState, useContext } from 'react';
-import { Snackbar } from '@material-ui/core';
-import MuiAlert from '@material-ui/lab/Alert';
+import React, { createContext, useContext, useState } from 'react';
+import { Snackbar, SnackbarContent } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
+import { green, red, blue } from '@material-ui/core/colors';
 
-const NotificationContext = createContext();
+const NotificationContext = createContext(null);
 
-export const SEVERITY_TYPES = {
-  SUCCESS: 'success',
-  ERROR: 'error',
-  WARNING: 'warning',
-  INFO: 'info',
-};
+const useStyles = makeStyles(theme => ({
+  success: {
+    backgroundColor: green[600],
+  },
+  error: {
+    backgroundColor: red[600],
+  },
+  info: {
+    backgroundColor: blue[600],
+  },
+  message: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+}));
 
 export const NotificationProvider = ({ children }) => {
-  const [notification, setNotification] = useState(null);
+  const classes = useStyles();
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    type: 'info', // 'success', 'error', 'info'
+  });
 
-  const showNotification = (message, severity = SEVERITY_TYPES.INFO, duration = 6000) => {
-    setNotification({ message, severity, duration });
+  const showNotification = (message, type = 'info') => {
+    setNotification({
+      open: true,
+      message,
+      type,
+    });
   };
 
-  const hideNotification = (event, reason) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setNotification(null);
+  const hideNotification = () => {
+    setNotification(prev => ({
+      ...prev,
+      open: false,
+    }));
   };
 
   return (
-    <NotificationContext.Provider value={{ showNotification, hideNotification }}>
+    <NotificationContext.Provider value={{ showNotification }}>
       {children}
       <Snackbar 
-        open={!!notification} 
-        autoHideDuration={notification?.duration} 
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        open={notification.open}
+        autoHideDuration={6000}
         onClose={hideNotification}
       >
-        <MuiAlert 
-          elevation={6} 
-          variant="filled" 
-          onClose={hideNotification} 
-          severity={notification?.severity}
-        >
-          {notification?.message}
-        </MuiAlert>
+        <SnackbarContent
+          className={classes[notification.type]}
+          message={
+            <span className={classes.message}>
+              {notification.message}
+            </span>
+          }
+        />
       </Snackbar>
     </NotificationContext.Provider>
   );
@@ -53,3 +76,5 @@ export const useNotification = () => {
   }
   return context;
 };
+
+export default NotificationContext;

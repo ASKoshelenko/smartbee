@@ -1,155 +1,92 @@
-import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter as Router, Route, Switch, Redirect, useLocation } from 'react-router-dom';
+import React, { Suspense } from 'react';
+import { BrowserRouter as Router, Route, Switch, Redirect } from 'react-router-dom';
 import { ThemeProvider } from '@material-ui/core/styles';
-import { CssBaseline, Container, Box, CircularProgress, Button } from '@material-ui/core';
-import { useTransition, animated } from 'react-spring';
+import { CssBaseline, CircularProgress, Box } from '@material-ui/core';
 import theme from './theme';
+
+// Contexts
 import { AuthProvider } from './contexts/AuthContext';
-import { CourseProvider } from './contexts/CourseContext';
-import { GameProvider } from './contexts/GameContext';
 import { NotificationProvider } from './contexts/NotificationContext';
-import Header from './components/Header';
-import Footer from './components/Footer';
+
+// Components
+import Layout from './components/Layout';
+import PrivateRoute from './components/auth/PrivateRoute';
+import LoginForm from './components/auth/LoginForm';
+import RegisterForm from './components/auth/RegisterForm';
 import ErrorBoundary from './components/ErrorBoundary';
-import GlobalErrorHandler from './components/GlobalErrorHandler';
-import PrivateRoute from './components/PrivateRoute';
 
 // Lazy-loaded components
-const Home = lazy(() => import('./pages/Home'));
-const Courses = lazy(() => import('./pages/Courses'));
-const CourseDetail = lazy(() => import('./pages/CourseDetail'));
-const About = lazy(() => import('./pages/About'));
-const Contact = lazy(() => import('./pages/Contact'));
-const Login = lazy(() => import('./components/Auth/Login'));
-const Register = lazy(() => import('./components/Auth/Register'));
-const Profile = lazy(() => import('./components/Profile'));
-const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
-const TutorDashboard = lazy(() => import('./pages/TutorDashboard'));
-const StudentDashboard = lazy(() => import('./pages/StudentDashboard'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const Courses = React.lazy(() => import('./pages/Courses'));
+const CourseDetail = React.lazy(() => import('./pages/CourseDetail'));
+const Quiz = React.lazy(() => import('./pages/Quiz'));
+const NotFound = React.lazy(() => import('./pages/NotFound'));
 
-// ScrollToTop component
-function ScrollToTop() {
-  const { pathname } = useLocation();
+// Loading component
+const LoadingFallback = () => (
+  <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
+    <CircularProgress />
+  </Box>
+);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, [pathname]);
-
-  return null;
-}
-
-// AnimatedRoutes component
-function AnimatedRoutes() {
-  const location = useLocation();
-  
-  const transitions = useTransition(location, {
-    from: { opacity: 0, transform: 'translate3d(100%,0,0)' },
-    enter: { opacity: 1, transform: 'translate3d(0%,0,0)' },
-    leave: { opacity: 0, transform: 'translate3d(-50%,0,0)' },
-  });
-
-  return transitions((props, item) => (
-    <animated.div style={props}>
-      <Switch location={item}>
-        <Route exact path="/" component={Home} />
-        <Route path="/courses" component={Courses} />
-        <PrivateRoute path="/course/:id" component={CourseDetail} />
-        <Route path="/about" component={About} />
-        <Route path="/contact" component={Contact} />
-        <Route path="/login" component={Login} />
-        <Route path="/register" component={Register} />
-        <PrivateRoute path="/profile" component={Profile} />
-        <PrivateRoute path="/admin" component={AdminDashboard} roles={['admin']} />
-        <PrivateRoute path="/tutor" component={TutorDashboard} roles={['tutor', 'admin']} />
-        <PrivateRoute path="/student" component={StudentDashboard} roles={['student']} />
-        <Route path="*" render={() => <Redirect to="/" />} />
-      </Switch>
-    </animated.div>
-  ));
-}
+// Home redirect component
+const HomeRedirect = () => {
+  const token = localStorage.getItem('token');
+  return token ? <Redirect to="/dashboard" /> : <Redirect to="/login" />;
+};
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  const initializeApp = async () => {
-    try {
-      // Simulate app initialization
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setIsLoading(false);
-    } catch (err) {
-      console.error('Failed to initialize app:', err);
-      setError('Failed to initialize app. Please try again later.');
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    initializeApp();
-  }, []);
-
-  if (isLoading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (error) {
-    return (
-      <GlobalErrorHandler 
-        error={error} 
-        onRetry={() => {
-          setError(null);
-          setIsLoading(true);
-          initializeApp();
-        }} 
-      />
-    );
-  }
-
   return (
     <ErrorBoundary>
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <NotificationProvider>
           <AuthProvider>
-            <CourseProvider>
-              <GameProvider>
-                <Router>
-                  <ScrollToTop />
-                  <Box 
-                    className="App" 
-                    display="flex" 
-                    flexDirection="column" 
-                    minHeight="100vh"
-                    bgcolor="background.default"
-                  >
-                    <Header />
-                    <Container 
-                      maxWidth={false} 
-                      component="main" 
-                      style={{
-                        flexGrow: 1, 
-                        paddingTop: '64px', 
-                        paddingLeft: 0,
-                        paddingRight: 0,
-                      }}
-                    >
-                      <Suspense fallback={
-                        <Box display="flex" justifyContent="center" alignItems="center" minHeight="calc(100vh - 64px)">
-                          <CircularProgress />
-                        </Box>
-                      }>
-                        <AnimatedRoutes />
-                      </Suspense>
-                    </Container>
-                    <Footer />
-                  </Box>
-                </Router>
-              </GameProvider>
-            </CourseProvider>
+            <Router>
+              <Suspense fallback={<LoadingFallback />}>
+                <Switch>
+                  {/* Public routes */}
+                  <Route exact path="/" component={HomeRedirect} />
+                  <Route path="/login" component={LoginForm} />
+                  <Route path="/register" component={RegisterForm} />
+                  
+                  {/* Protected routes */}
+                  <PrivateRoute path="/dashboard">
+                    <Layout>
+                      <Dashboard />
+                    </Layout>
+                  </PrivateRoute>
+                  
+                  <PrivateRoute path="/profile">
+                    <Layout>
+                      <Profile />
+                    </Layout>
+                  </PrivateRoute>
+                  
+                  <PrivateRoute path="/courses" exact>
+                    <Layout>
+                      <Courses />
+                    </Layout>
+                  </PrivateRoute>
+                  
+                  <PrivateRoute path="/courses/:courseId">
+                    <Layout>
+                      <CourseDetail />
+                    </Layout>
+                  </PrivateRoute>
+                  
+                  <PrivateRoute path="/quiz/:quizId">
+                    <Layout>
+                      <Quiz />
+                    </Layout>
+                  </PrivateRoute>
+                  
+                  {/* 404 page */}
+                  <Route path="*" component={NotFound} />
+                </Switch>
+              </Suspense>
+            </Router>
           </AuthProvider>
         </NotificationProvider>
       </ThemeProvider>
