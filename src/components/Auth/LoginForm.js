@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Paper,
@@ -8,7 +9,9 @@ import {
   Typography,
   makeStyles,
   Link,
-  CircularProgress
+  CircularProgress,
+  FormControlLabel,
+  Checkbox,
 } from '@material-ui/core';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -36,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   },
   error: {
     color: theme.palette.error.main,
-    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
     textAlign: 'center',
   },
   link: {
@@ -47,19 +50,21 @@ const useStyles = makeStyles((theme) => ({
 const LoginForm = () => {
   const classes = useStyles();
   const history = useHistory();
+  const { t } = useTranslation();
   const { login, error: authError } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    rememberMe: false,
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: name === 'rememberMe' ? checked : value
     }));
   };
 
@@ -69,7 +74,7 @@ const LoginForm = () => {
     setLoading(true);
 
     try {
-      await login(formData.email, formData.password);
+      await login(formData.email, formData.password, formData.rememberMe);
       history.push('/dashboard');
     } catch (err) {
       setError(err.message);
@@ -83,7 +88,7 @@ const LoginForm = () => {
       <div className={classes.container}>
         <Paper className={classes.paper} elevation={3}>
           <Typography component="h1" variant="h5">
-            Вход в SmartBee
+            {t('auth.login.title')}
           </Typography>
           
           {(error || authError) && (
@@ -99,13 +104,13 @@ const LoginForm = () => {
               required
               fullWidth
               id="email"
-              label="Email"
+              label={t('auth.login.email')}
               name="email"
               autoComplete="email"
               autoFocus
               value={formData.email}
               onChange={handleChange}
-              disabled={loading}
+              error={!!error}
             />
             <TextField
               variant="outlined"
@@ -113,13 +118,24 @@ const LoginForm = () => {
               required
               fullWidth
               name="password"
-              label="Пароль"
+              label={t('auth.login.password')}
               type="password"
               id="password"
               autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              disabled={loading}
+              error={!!error}
+            />
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="rememberMe"
+                  color="primary"
+                  checked={formData.rememberMe}
+                  onChange={handleChange}
+                />
+              }
+              label={t('auth.login.rememberMe')}
             />
             <Button
               type="submit"
@@ -129,7 +145,7 @@ const LoginForm = () => {
               className={classes.submit}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Войти'}
+              {loading ? <CircularProgress size={24} /> : t('auth.login.submit')}
             </Button>
           </form>
 
@@ -139,7 +155,7 @@ const LoginForm = () => {
             className={classes.link}
             onClick={() => history.push('/register')}
           >
-            Нет аккаунта? Зарегистрироваться
+            {t('auth.login.noAccount')} {t('auth.login.register')}
           </Link>
           
           <Link
@@ -148,7 +164,7 @@ const LoginForm = () => {
             className={classes.link}
             onClick={() => history.push('/forgot-password')}
           >
-            Забыли пароль?
+            {t('auth.login.forgotPassword')}
           </Link>
         </Paper>
       </div>

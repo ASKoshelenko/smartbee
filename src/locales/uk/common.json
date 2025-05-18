@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "SmartBee",
+    "description": "Платформа для підготовки до НМТ",
+    "loading": "Завантаження...",
+    "error": "Помилка",
+    "success": "Успішно",
+    "warning": "Увага",
+    "info": "Інформація"
+  },
+  "navigation": {
+    "home": "Головна",
+    "courses": "Курси",
+    "profile": "Профіль",
+    "testing": "Тестування",
+    "login": "Увійти",
+    "register": "Зареєструватися",
+    "logout": "Вийти"
+  },
+  "buttons": {
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "edit": "Редагувати",
+    "submit": "Відправити",
+    "back": "Назад",
+    "next": "Далі",
+    "previous": "Назад",
+    "continue": "Продовжити",
+    "finish": "Завершити"
+  },
+  "validation": {
+    "required": "Обов'язкове поле",
+    "email": "Невірний формат email",
+    "password": "Пароль повинен містити мінімум 8 символів",
+    "passwordMatch": "Паролі не співпадають",
+    "minLength": "Мінімальна довжина: {{count}} символів",
+    "maxLength": "Максимальна довжина: {{count}} символів"
+  },
+  "errors": {
+    "general": "Щось пішло не так",
+    "notFound": "Сторінку не знайдено",
+    "unauthorized": "Необхідна авторизація",
+    "forbidden": "Доступ заборонено",
+    "serverError": "Помилка сервера",
+    "networkError": "Помилка мережі",
+    "validationError": "Помилка валідації"
+  },
+  "messages": {
+    "welcome": "Ласкаво просимо до SmartBee!",
+    "noData": "Немає даних для відображення",
+    "confirmDelete": "Ви впевнені, що хочете видалити?",
+    "changesSaved": "Зміни збережено",
+    "changesDiscarded": "Зміни скасовано"
+  }
+}
