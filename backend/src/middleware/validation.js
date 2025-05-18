@@ -1,4 +1,4 @@
-const { ApiError } = require('./error');
+const ApiError = require('../utils/ApiError');
 
 // Validation schemas
 const schemas = {

@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { ApiError } = require('./error');
+const ApiError = require('../utils/ApiError');
 const User = require('../models/User');
 
 // Authentication middleware

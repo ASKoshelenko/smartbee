@@ -10,8 +10,7 @@ import {
   makeStyles,
   Link,
   CircularProgress,
-  Grid,
-  MenuItem
+  Grid
 } from '@material-ui/core';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -48,25 +47,16 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const grades = [
-  { value: 9, label: '9 класс' },
-  { value: 10, label: '10 класс' },
-  { value: 11, label: '11 класс' },
-];
-
 const RegisterForm = () => {
   const classes = useStyles();
   const history = useHistory();
   const { t } = useTranslation();
-  const { register, error: authError } = useAuth();
+  const { register, login, error: authError } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
     confirmPassword: '',
-    grade: '',
-    school: '',
-    city: '',
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -88,6 +78,14 @@ const RegisterForm = () => {
       setError(t('auth.validation.passwordMinLength'));
       return false;
     }
+    if (!formData.name.trim()) {
+      setError(t('auth.validation.firstNameRequired'));
+      return false;
+    }
+    if (!formData.email.trim()) {
+      setError(t('auth.validation.emailRequired'));
+      return false;
+    }
     return true;
   };
 
@@ -104,7 +102,8 @@ const RegisterForm = () => {
     try {
       const { confirmPassword, ...registerData } = formData;
       await register(registerData);
-      history.push('/login');
+      await login(registerData.email, registerData.password);
+      history.push('/dashboard');
     } catch (err) {
       setError(err.message);
     } finally {
@@ -119,13 +118,11 @@ const RegisterForm = () => {
           <Typography component="h1" variant="h5">
             {t('auth.register.title')}
           </Typography>
-          
           {(error || authError) && (
             <Typography className={classes.error} variant="body2">
               {error || authError}
             </Typography>
           )}
-
           <form className={classes.form} onSubmit={handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12}>
@@ -134,7 +131,7 @@ const RegisterForm = () => {
                   required
                   fullWidth
                   id="name"
-                  label={t('auth.register.name')}
+                  label={t('auth.register.firstName')}
                   name="name"
                   autoComplete="name"
                   value={formData.name}
@@ -185,50 +182,6 @@ const RegisterForm = () => {
                   disabled={loading}
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  select
-                  variant="outlined"
-                  required
-                  fullWidth
-                  id="grade"
-                  label={t('auth.register.grade')}
-                  name="grade"
-                  value={formData.grade}
-                  onChange={handleChange}
-                  disabled={loading}
-                >
-                  {grades.map((option) => (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label}
-                    </MenuItem>
-                  ))}
-                </TextField>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  id="school"
-                  label={t('auth.register.school')}
-                  name="school"
-                  value={formData.school}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  fullWidth
-                  id="city"
-                  label={t('auth.register.city')}
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
-              </Grid>
             </Grid>
             <Button
               type="submit"
@@ -241,7 +194,6 @@ const RegisterForm = () => {
               {loading ? <CircularProgress size={24} /> : t('auth.register.submit')}
             </Button>
           </form>
-
           <Link
             component="button"
             variant="body2"

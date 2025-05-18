@@ -68,15 +68,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const register = async (name, email, password, role) => {
+  const register = async (registerData) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post(`${API_BASE_URL}/auth/register`, { name, email, password, role });
+      const { name, email, password } = registerData;
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, { name, email, password });
       showNotification('Registration successful. Please log in.', 'success');
       return response.data;
     } catch (err) {
-      const message = err.response?.data?.message || 'Ошибка регистрации';
+      const message = err.response?.data?.error || err.response?.data?.message || 'Ошибка регистрации';
       setError(message);
       showNotification(message, 'error');
       throw new Error(message);
