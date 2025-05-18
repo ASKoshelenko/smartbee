@@ -10,14 +10,14 @@ import { NotificationProvider } from './contexts/NotificationContext';
 
 // Components
 import Layout from './components/Layout';
-import PrivateRoute from './components/auth/PrivateRoute';
-import LoginForm from './components/auth/LoginForm';
-import RegisterForm from './components/auth/RegisterForm';
+import PrivateRoute from './components/Auth/PrivateRoute';
+import LoginForm from './components/Auth/LoginForm';
+import RegisterForm from './components/Auth/RegisterForm';
 import ErrorBoundary from './components/ErrorBoundary';
 
 // Lazy-loaded components
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
-const Profile = React.lazy(() => import('./pages/Profile'));
+const Profile = React.lazy(() => import('./components/Profile'));
 const Courses = React.lazy(() => import('./pages/Courses'));
 const CourseDetail = React.lazy(() => import('./pages/CourseDetail'));
 const Quiz = React.lazy(() => import('./pages/Quiz'));

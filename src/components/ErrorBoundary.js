@@ -1,29 +1,5 @@
 import React from 'react';
 import { Box, Typography, Button, Container } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: '100vh',
-    padding: theme.spacing(3),
-    textAlign: 'center',
-  },
-  errorIcon: {
-    fontSize: 64,
-    color: theme.palette.error.main,
-    marginBottom: theme.spacing(2),
-  },
-  errorText: {
-    marginBottom: theme.spacing(3),
-  },
-  retryButton: {
-    marginTop: theme.spacing(2),
-  },
-}));
 
 class ErrorBoundary extends React.Component {
   constructor(props) {
@@ -40,13 +16,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    this.setState({
-      error,
-      errorInfo
-    });
-    
-    // Здесь можно добавить отправку ошибки в сервис аналитики
-    console.error('Error caught by boundary:', error, errorInfo);
+    this.setState({ errorInfo });
   }
 
   handleRetry = () => {
@@ -61,11 +31,19 @@ class ErrorBoundary extends React.Component {
     if (this.state.hasError) {
       return (
         <Container maxWidth="sm">
-          <Box className={useStyles().root}>
+          <Box style={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '100vh',
+            padding: 24,
+            textAlign: 'center',
+          }}>
             <Typography variant="h4" color="error" gutterBottom>
               Упс! Что-то пошло не так
             </Typography>
-            <Typography variant="body1" className={useStyles().errorText}>
+            <Typography variant="body1" style={{ marginBottom: 24 }}>
               Произошла непредвиденная ошибка. Мы уже работаем над её исправлением.
             </Typography>
             {process.env.NODE_ENV === 'development' && (
@@ -82,7 +60,7 @@ class ErrorBoundary extends React.Component {
               variant="contained"
               color="primary"
               onClick={this.handleRetry}
-              className={useStyles().retryButton}
+              style={{ marginTop: 16 }}
             >
               Попробовать снова
             </Button>

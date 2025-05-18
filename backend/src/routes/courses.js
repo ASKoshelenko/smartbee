@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Course = require('../models/Course');
 const { authenticate, authorize } = require('../middleware/auth');
-const { validateCourse } = require('../middleware/validation');
+const { validateRequest } = require('../middleware/validation');
 
 // Get all courses (with filtering and pagination)
 router.get('/', async (req, res) => {
@@ -76,7 +76,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create new course
-router.post('/', authenticate, authorize('teacher', 'admin'), validateCourse, async (req, res) => {
+router.post('/', authenticate, authorize('teacher', 'admin'), validateRequest, async (req, res) => {
   try {
     const course = new Course({
       ...req.body,
@@ -93,7 +93,7 @@ router.post('/', authenticate, authorize('teacher', 'admin'), validateCourse, as
 });
 
 // Update course
-router.patch('/:id', authenticate, authorize('teacher', 'admin'), validateCourse, async (req, res) => {
+router.patch('/:id', authenticate, authorize('teacher', 'admin'), validateRequest, async (req, res) => {
   try {
     const course = await Course.findById(req.params.id);
     

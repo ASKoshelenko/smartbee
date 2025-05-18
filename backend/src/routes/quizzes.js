@@ -3,7 +3,7 @@ const router = express.Router();
 const Quiz = require('../models/Quiz');
 const QuizAttempt = require('../models/QuizAttempt');
 const { authenticate, authorize } = require('../middleware/auth');
-const { validateQuiz } = require('../middleware/validation');
+const { validateRequest } = require('../middleware/validation');
 
 // Get all quizzes (with filtering and pagination)
 router.get('/', async (req, res) => {
@@ -78,7 +78,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Create new quiz
-router.post('/', authenticate, authorize('teacher', 'admin'), validateQuiz, async (req, res) => {
+router.post('/', authenticate, authorize('teacher', 'admin'), validateRequest, async (req, res) => {
   try {
     const quiz = new Quiz({
       ...req.body,
@@ -95,7 +95,7 @@ router.post('/', authenticate, authorize('teacher', 'admin'), validateQuiz, asyn
 });
 
 // Update quiz
-router.patch('/:id', authenticate, authorize('teacher', 'admin'), validateQuiz, async (req, res) => {
+router.patch('/:id', authenticate, authorize('teacher', 'admin'), validateRequest, async (req, res) => {
   try {
     const quiz = await Quiz.findById(req.params.id);
     

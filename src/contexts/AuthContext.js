@@ -4,7 +4,7 @@ import { useNotification } from './NotificationContext';
 
 const AuthContext = createContext(null);
 
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:5001/api';
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'http://localhost:3001/api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -51,7 +51,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post(`${API_BASE_URL}/users/login`, { email, password });
+      const response = await axios.post(`${API_BASE_URL}/auth/login`, { email, password });
       const { token, refreshToken, user } = response.data;
       setAuthToken(token);
       setRefreshToken(refreshToken);
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.post(`${API_BASE_URL}/users/register`, { name, email, password, role });
+      const response = await axios.post(`${API_BASE_URL}/auth/register`, { name, email, password, role });
       showNotification('Registration successful. Please log in.', 'success');
       return response.data;
     } catch (err) {
@@ -96,7 +96,7 @@ export const AuthProvider = ({ children }) => {
   const refreshToken = useCallback(async () => {
     try {
       const refreshToken = localStorage.getItem('refreshToken');
-      const response = await axios.post(`${API_BASE_URL}/users/refresh-token`, { refreshToken });
+      const response = await axios.post(`${API_BASE_URL}/auth/refresh-token`, { refreshToken });
       const { token } = response.data;
       setAuthToken(token);
       return true;
