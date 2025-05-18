@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { validateRegistration, validateLogin } = require('../middleware/validation');
+const { validateRequest } = require('../middleware/validation');
 const { authenticate } = require('../middleware/auth');
 
 // Register new user
-router.post('/register', validateRegistration, async (req, res) => {
+router.post('/register', validateRequest, async (req, res) => {
   try {
     const { email, password, firstName, lastName, grade } = req.body;
 
@@ -48,7 +48,7 @@ router.post('/register', validateRegistration, async (req, res) => {
 });
 
 // Login user
-router.post('/login', validateLogin, async (req, res) => {
+router.post('/login', validateRequest, async (req, res) => {
   try {
     const { email, password } = req.body;
 
