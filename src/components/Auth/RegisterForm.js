@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Paper,
@@ -56,6 +57,7 @@ const grades = [
 const RegisterForm = () => {
   const classes = useStyles();
   const history = useHistory();
+  const { t } = useTranslation();
   const { register, error: authError } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
@@ -79,11 +81,11 @@ const RegisterForm = () => {
 
   const validateForm = () => {
     if (formData.password !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
+      setError(t('auth.validation.passwordMatch'));
       return false;
     }
-    if (formData.password.length < 6) {
-      setError('Пароль должен содержать минимум 6 символов');
+    if (formData.password.length < 8) {
+      setError(t('auth.validation.passwordMinLength'));
       return false;
     }
     return true;
@@ -115,7 +117,7 @@ const RegisterForm = () => {
       <div className={classes.container}>
         <Paper className={classes.paper} elevation={3}>
           <Typography component="h1" variant="h5">
-            Регистрация в SmartBee
+            {t('auth.register.title')}
           </Typography>
           
           {(error || authError) && (
@@ -132,7 +134,7 @@ const RegisterForm = () => {
                   required
                   fullWidth
                   id="name"
-                  label="Имя"
+                  label={t('auth.register.name')}
                   name="name"
                   autoComplete="name"
                   value={formData.name}
@@ -146,7 +148,7 @@ const RegisterForm = () => {
                   required
                   fullWidth
                   id="email"
-                  label="Email"
+                  label={t('auth.register.email')}
                   name="email"
                   autoComplete="email"
                   value={formData.email}
@@ -160,7 +162,7 @@ const RegisterForm = () => {
                   required
                   fullWidth
                   name="password"
-                  label="Пароль"
+                  label={t('auth.register.password')}
                   type="password"
                   id="password"
                   autoComplete="new-password"
@@ -175,7 +177,7 @@ const RegisterForm = () => {
                   required
                   fullWidth
                   name="confirmPassword"
-                  label="Подтвердите пароль"
+                  label={t('auth.register.confirmPassword')}
                   type="password"
                   id="confirmPassword"
                   value={formData.confirmPassword}
@@ -190,7 +192,7 @@ const RegisterForm = () => {
                   required
                   fullWidth
                   id="grade"
-                  label="Класс"
+                  label={t('auth.register.grade')}
                   name="grade"
                   value={formData.grade}
                   onChange={handleChange}
@@ -208,7 +210,7 @@ const RegisterForm = () => {
                   variant="outlined"
                   fullWidth
                   id="school"
-                  label="Школа"
+                  label={t('auth.register.school')}
                   name="school"
                   value={formData.school}
                   onChange={handleChange}
@@ -220,7 +222,7 @@ const RegisterForm = () => {
                   variant="outlined"
                   fullWidth
                   id="city"
-                  label="Город"
+                  label={t('auth.register.city')}
                   name="city"
                   value={formData.city}
                   onChange={handleChange}
@@ -236,7 +238,7 @@ const RegisterForm = () => {
               className={classes.submit}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} /> : 'Зарегистрироваться'}
+              {loading ? <CircularProgress size={24} /> : t('auth.register.submit')}
             </Button>
           </form>
 
@@ -246,7 +248,7 @@ const RegisterForm = () => {
             className={classes.link}
             onClick={() => history.push('/login')}
           >
-            Уже есть аккаунт? Войти
+            {t('auth.register.haveAccount')} {t('auth.register.login')}
           </Link>
         </Paper>
       </div>

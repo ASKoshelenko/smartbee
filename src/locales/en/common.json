@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "SmartBee",
+    "description": "NMT Preparation Platform",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Information"
+  },
+  "navigation": {
+    "home": "Home",
+    "courses": "Courses",
+    "profile": "Profile",
+    "testing": "Testing",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "continue": "Continue",
+    "finish": "Finish"
+  },
+  "validation": {
+    "required": "Required field",
+    "email": "Invalid email format",
+    "password": "Password must be at least 8 characters",
+    "passwordMatch": "Passwords do not match",
+    "minLength": "Minimum length: {{count}} characters",
+    "maxLength": "Maximum length: {{count}} characters"
+  },
+  "errors": {
+    "general": "Something went wrong",
+    "notFound": "Page not found",
+    "unauthorized": "Authentication required",
+    "forbidden": "Access forbidden",
+    "serverError": "Server error",
+    "networkError": "Network error",
+    "validationError": "Validation error"
+  },
+  "messages": {
+    "welcome": "Welcome to SmartBee!",
+    "noData": "No data to display",
+    "confirmDelete": "Are you sure you want to delete?",
+    "changesSaved": "Changes saved",
+    "changesDiscarded": "Changes discarded"
+  }
+}

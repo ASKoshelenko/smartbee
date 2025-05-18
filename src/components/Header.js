@@ -4,6 +4,8 @@ import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, useMed
 import { Menu as MenuIcon } from '@material-ui/icons';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from './LanguageSwitcher';
 
 const useStyles = makeStyles((theme) => ({
   appBar: {
@@ -67,6 +69,7 @@ function Header() {
   const [anchorEl, setAnchorEl] = useState(null);
   const { user, logout } = useAuth();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -89,23 +92,24 @@ function Header() {
 
   const renderNavButtons = () => (
     <>
-      <NavButton to="/courses">Courses</NavButton>
-      <NavButton to="/about">About</NavButton>
-      <NavButton to="/contact">Contact</NavButton>
+      <NavButton to="/courses">{t('navigation.courses')}</NavButton>
+      <NavButton to="/about">{t('navigation.about')}</NavButton>
+      <NavButton to="/contact">{t('navigation.contact')}</NavButton>
       {user ? (
         <>
-          {user.role === 'student' && <NavButton to="/student">Student Dashboard</NavButton>}
-          {user.role === 'tutor' && <NavButton to="/tutor">Tutor Dashboard</NavButton>}
-          {user.role === 'admin' && <NavButton to="/admin">Admin Dashboard</NavButton>}
-          <NavButton to="/profile">Profile</NavButton>
-          <NavButton onClick={logout}>Logout</NavButton>
+          {user.role === 'student' && <NavButton to="/student">{t('navigation.studentDashboard')}</NavButton>}
+          {user.role === 'tutor' && <NavButton to="/tutor">{t('navigation.tutorDashboard')}</NavButton>}
+          {user.role === 'admin' && <NavButton to="/admin">{t('navigation.adminDashboard')}</NavButton>}
+          <NavButton to="/profile">{t('navigation.profile')}</NavButton>
+          <NavButton onClick={logout}>{t('navigation.logout')}</NavButton>
         </>
       ) : (
         <>
-          <NavButton to="/login">Login</NavButton>
-          <NavButton to="/register">Register</NavButton>
+          <NavButton to="/login">{t('navigation.login')}</NavButton>
+          <NavButton to="/register">{t('navigation.register')}</NavButton>
         </>
       )}
+      <LanguageSwitcher />
     </>
   );
 
@@ -113,21 +117,24 @@ function Header() {
     <AppBar position="static" className={classes.appBar}>
       <Toolbar className={classes.toolbar}>
         <div className={classes.logoContainer}>
-          <img src="/assets/icons/bee-logo.png" alt="SmartBee Logo" className={classes.logo} />
+          <img src="/assets/icons/bee-logo.png" alt={t('app.name')} className={classes.logo} />
           <Typography variant="h6" className={classes.title} component={RouterLink} to="/">
-            SmartBee
+            {t('app.name')}
           </Typography>
         </div>
         {isMobile ? (
-          <IconButton
-            edge="start"
-            className={classes.menuButton}
-            color="inherit"
-            aria-label="menu"
-            onClick={handleClick}
-          >
-            <MenuIcon />
-          </IconButton>
+          <>
+            <LanguageSwitcher />
+            <IconButton
+              edge="start"
+              className={classes.menuButton}
+              color="inherit"
+              aria-label="menu"
+              onClick={handleClick}
+            >
+              <MenuIcon />
+            </IconButton>
+          </>
         ) : (
           <div className={classes.navContainer}>
             {renderNavButtons()}
@@ -141,27 +148,27 @@ function Header() {
         >
           {isMobile && (
             [
-              <MenuItem key="courses" onClick={handleClose} component={RouterLink} to="/courses">Courses</MenuItem>,
-              <MenuItem key="about" onClick={handleClose} component={RouterLink} to="/about">About</MenuItem>,
-              <MenuItem key="contact" onClick={handleClose} component={RouterLink} to="/contact">Contact</MenuItem>,
+              <MenuItem key="courses" onClick={handleClose} component={RouterLink} to="/courses">{t('navigation.courses')}</MenuItem>,
+              <MenuItem key="about" onClick={handleClose} component={RouterLink} to="/about">{t('navigation.about')}</MenuItem>,
+              <MenuItem key="contact" onClick={handleClose} component={RouterLink} to="/contact">{t('navigation.contact')}</MenuItem>,
               user ? (
                 [
                   user.role === 'student' && (
-                    <MenuItem key="student" onClick={handleClose} component={RouterLink} to="/student">Student Dashboard</MenuItem>
+                    <MenuItem key="student" onClick={handleClose} component={RouterLink} to="/student">{t('navigation.studentDashboard')}</MenuItem>
                   ),
                   user.role === 'tutor' && (
-                    <MenuItem key="tutor" onClick={handleClose} component={RouterLink} to="/tutor">Tutor Dashboard</MenuItem>
+                    <MenuItem key="tutor" onClick={handleClose} component={RouterLink} to="/tutor">{t('navigation.tutorDashboard')}</MenuItem>
                   ),
                   user.role === 'admin' && (
-                    <MenuItem key="admin" onClick={handleClose} component={RouterLink} to="/admin">Admin Dashboard</MenuItem>
+                    <MenuItem key="admin" onClick={handleClose} component={RouterLink} to="/admin">{t('navigation.adminDashboard')}</MenuItem>
                   ),
-                  <MenuItem key="profile" onClick={handleClose} component={RouterLink} to="/profile">Profile</MenuItem>,
-                  <MenuItem key="logout" onClick={() => { logout(); handleClose(); }}>Logout</MenuItem>
+                  <MenuItem key="profile" onClick={handleClose} component={RouterLink} to="/profile">{t('navigation.profile')}</MenuItem>,
+                  <MenuItem key="logout" onClick={() => { logout(); handleClose(); }}>{t('navigation.logout')}</MenuItem>
                 ]
               ) : (
                 [
-                  <MenuItem key="login" onClick={handleClose} component={RouterLink} to="/login">Login</MenuItem>,
-                  <MenuItem key="register" onClick={handleClose} component={RouterLink} to="/register">Register</MenuItem>
+                  <MenuItem key="login" onClick={handleClose} component={RouterLink} to="/login">{t('navigation.login')}</MenuItem>,
+                  <MenuItem key="register" onClick={handleClose} component={RouterLink} to="/register">{t('navigation.register')}</MenuItem>
                 ]
               )
             ]

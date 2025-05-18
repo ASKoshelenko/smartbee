@@ -1,0 +1,56 @@
+{
+  "app": {
+    "name": "SmartBee",
+    "description": "Платформа для подготовки к НМТ",
+    "loading": "Загрузка...",
+    "error": "Ошибка",
+    "success": "Успешно",
+    "warning": "Внимание",
+    "info": "Информация"
+  },
+  "navigation": {
+    "home": "Главная",
+    "courses": "Курсы",
+    "profile": "Профиль",
+    "testing": "Тестирование",
+    "login": "Войти",
+    "register": "Зарегистрироваться",
+    "logout": "Выйти"
+  },
+  "buttons": {
+    "save": "Сохранить",
+    "cancel": "Отмена",
+    "delete": "Удалить",
+    "edit": "Редактировать",
+    "submit": "Отправить",
+    "back": "Назад",
+    "next": "Далее",
+    "previous": "Назад",
+    "continue": "Продолжить",
+    "finish": "Завершить"
+  },
+  "validation": {
+    "required": "Обязательное поле",
+    "email": "Неверный формат email",
+    "password": "Пароль должен содержать минимум 8 символов",
+    "passwordMatch": "Пароли не совпадают",
+    "minLength": "Минимальная длина: {{count}} символов",
+    "maxLength": "Максимальная длина: {{count}} символов"
+  },
+  "errors": {
+    "general": "Что-то пошло не так",
+    "notFound": "Страница не найдена",
+    "unauthorized": "Требуется авторизация",
+    "forbidden": "Доступ запрещен",
+    "serverError": "Ошибка сервера",
+    "networkError": "Ошибка сети",
+    "validationError": "Ошибка валидации"
+  },
+  "messages": {
+    "welcome": "Добро пожаловать в SmartBee!",
+    "noData": "Нет данных для отображения",
+    "confirmDelete": "Вы уверены, что хотите удалить?",
+    "changesSaved": "Изменения сохранены",
+    "changesDiscarded": "Изменения отменены"
+  }
+}
